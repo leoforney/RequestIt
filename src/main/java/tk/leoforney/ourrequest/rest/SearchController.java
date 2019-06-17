@@ -95,7 +95,7 @@ public class SearchController {
                 .setAccessToken(authorization.getToken().getAccess_token()).build();
 
         try {
-            return Arrays.asList(spotifyApi.searchTracks(songName).build().execute().getItems());
+            return Arrays.asList(spotifyApi.searchTracks(songName).limit(5).build().execute().getItems());
         } catch (IOException | SpotifyWebApiException e) {
             e.printStackTrace();
         }

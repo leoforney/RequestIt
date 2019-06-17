@@ -55,7 +55,7 @@ public class DashboardView extends VerticalLayout {
         }
 
         Button dashboard = new Button("Sessions");
-        dashboard.addClickListener((ComponentEventListener<ClickEvent<Button>>) event -> dashboard.getUI().ifPresent(ui -> ui.navigate("session")));
+        dashboard.addClickListener((ComponentEventListener<ClickEvent<Button>>) event -> dashboard.getUI().ifPresent(ui -> ui.navigate("sessions")));
         add(dashboard);
 
     }

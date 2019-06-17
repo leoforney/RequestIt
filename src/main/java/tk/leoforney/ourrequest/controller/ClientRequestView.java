@@ -1,19 +1,20 @@
 package tk.leoforney.ourrequest.controller;
 
-import com.vaadin.componentfactory.Autocomplete;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
 import com.vaadin.flow.theme.material.Material;
 import com.wrapper.spotify.model_objects.specification.Track;
 import tk.leoforney.ourrequest.model.PartySession;
@@ -23,15 +24,13 @@ import tk.leoforney.ourrequest.repository.SpotifyAuthRepository;
 import tk.leoforney.ourrequest.rest.SearchController;
 import tk.leoforney.ourrequest.service.QueueService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static tk.leoforney.ourrequest.Application.appContext;
 
-@Route("r")
+@Route(value = "r")
+@Theme(value = Material.class, variant = Material.DARK)
 @PageTitle("OurRequest | Request")
-@Theme(value = Material.class, variant = Lumo.LIGHT)
-@HtmlImport("frontend://styles/lumo-styles.html")
 public class ClientRequestView extends VerticalLayout implements HasUrlParameter<String>, ComponentEventListener {
 
     private SpotifyAuthRepository spotifyAuthRepository;
@@ -43,10 +42,10 @@ public class ClientRequestView extends VerticalLayout implements HasUrlParameter
     private PartySession session;
     private SpotifyAuthorization sa;
 
-    private Autocomplete autocomplete;
     private H4 sessionTitle;
     private String selectedSong;
-    private Label selectedSongLabel;
+    private RadioButtonGroup<Track> radioButtons;
+    private TextField songTextField;
 
     public ClientRequestView() {
         spotifyAuthRepository = (SpotifyAuthRepository) appContext.getAutowireCapableBeanFactory().getBean("spotifyAuthRepository");
@@ -55,30 +54,23 @@ public class ClientRequestView extends VerticalLayout implements HasUrlParameter
         queueService = (QueueService) appContext.getAutowireCapableBeanFactory().getBean("queueService");
         partySessions = (PartySessionRepository) appContext.getAutowireCapableBeanFactory().getBean("partySessionRepository");
 
-        autocomplete = new Autocomplete(5);
-
-        autocomplete.addAutocompleteValueAppliedListener(event -> {
-            selectedSongLabel.setText("Selection: " + event.getValue());
-        });
-
-        autocomplete.addValueClearListener(event -> {
-            autocomplete.setOptions(new ArrayList<>());
-        });
-
-        autocomplete.setLabel("Search for song");
-        autocomplete.setPlaceholder("Old Town Road");
-
         sessionTitle = new H4("Request song for ");
 
-        add(sessionTitle, autocomplete);
+        songTextField = new TextField("Song name");
 
-        selectedSongLabel = new Label();
-        add(selectedSongLabel);
+        Button searchButton = new Button("Search");
+        searchButton.setId("searchButton");
 
-        autocomplete.addChangeListener(this);
-        autocomplete.addAutocompleteValueAppliedListener(this);
+        searchButton.addClickListener(this);
+
+        radioButtons = new RadioButtonGroup<>();
+        radioButtons.setRenderer(new TextRenderer<>(
+                (ItemLabelGenerator<Track>) item -> item.getName() + " - " + item.getArtists()[0].getName()));
+
+        add(sessionTitle, new HorizontalLayout(songTextField, searchButton), radioButtons);
 
         Button requestButton = new Button("Request");
+        requestButton.setId("requestButton");
         requestButton.addClickListener(this);
         add(requestButton);
 
@@ -101,37 +93,31 @@ public class ClientRequestView extends VerticalLayout implements HasUrlParameter
 
     @Override
     public void onComponentEvent(ComponentEvent event) {
-        if (event instanceof Autocomplete.ValueChangeEvent) {
-            Autocomplete.ValueChangeEvent o = (Autocomplete.ValueChangeEvent) event;
-            String text = o.getValue();
-            if (!text.equals("")) {
-                List<Track> songs = searchController.searchSongs(sa, text);
-
-                List<String> songNames = new ArrayList<>();
-
-                for (Track trackIterated: songs) {
-                    songNames.add(trackIterated.getName() + " " + trackIterated.getArtists()[0].getName());
-                }
-
-                autocomplete.setOptions(songNames);
-            }
-        }
-        if (event instanceof Autocomplete.AutocompleteValueAppliedEvent) {
-            Autocomplete.AutocompleteValueAppliedEvent o = (Autocomplete.AutocompleteValueAppliedEvent) event;
-            selectedSong = o.getValue();
-        }
         if (event instanceof ClickEvent) {
-            if (selectedSong != null && session != null) {
-                boolean added = queueService.queueSong(session, selectedSong);
-                if (added) {
-                    Notification.show("Request for " + selectedSong + " put in.");
-                } else {
-                    Notification.show("This song is already requested!");
-                }
+            event.getSource().getId().ifPresent(s -> {
+                if (s.equals("searchButton")) {
+                    if (!songTextField.getValue().equals("")) {
+                        List<Track> songs = searchController.searchSongs(sa, songTextField.getValue());
 
-            } else {
-                Notification.show("You must select a song.");
-            }
+                        radioButtons.setItems(songs);
+                    } else {
+                        Notification.show("You must type in a song name");
+                    }
+
+                } else if (s.equals("requestButton")) {
+                    if (radioButtons.getOptionalValue().isPresent() && session != null) {
+                        boolean added = queueService.queueSong(session, radioButtons.getValue());
+                        if (added) {
+                            Notification.show("Request for " + radioButtons.getValue().getName() + " put in.");
+                        } else {
+                            Notification.show("This song is already requested!");
+                        }
+
+                    } else {
+                        Notification.show("You must select a song.");
+                    }
+                }
+            });
         }
     }
 }

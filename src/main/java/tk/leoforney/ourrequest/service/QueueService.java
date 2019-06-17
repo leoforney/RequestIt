@@ -36,19 +36,29 @@ public class QueueService {
         SpotifyAuthorization sa = spotifyAuthRepository.findByEmail(session.getEmail());
 
         List<com.wrapper.spotify.model_objects.specification.Track> searchList = searchController.searchSongs(sa, songName);
-        List<Track> queuedList = partySessions.findBy_id(session.getId()).getRequestedTracks();
-                //session.getRequestedTracks();
+        //session.getRequestedTracks();
 
         com.wrapper.spotify.model_objects.specification.Track topSelectedSong = searchList.get(0);
 
+        return queueSong(session, topSelectedSong);
+    }
+
+    public boolean queueSong(PartySession session, com.wrapper.spotify.model_objects.specification.Track selectedTrack) {
+        return queueSong(session, new Track(selectedTrack));
+    }
+
+    public boolean queueSong(PartySession session, Track selectedTrack) {
+
+        List<Track> queuedList = partySessions.findBy_id(session.getId()).getRequestedTracks();
+
         boolean inQueue = false;
         for (Track track : queuedList) {
-            if (topSelectedSong.getId().equals(track.getId())) {
+            if (selectedTrack.getId().equals(track.getId())) {
                 inQueue = true;
             }
         }
         if (!inQueue) {
-            session.requestTrack(topSelectedSong);
+            session.requestTrack(selectedTrack);
             partySessionRepository.save(session);
         }
         return !inQueue;

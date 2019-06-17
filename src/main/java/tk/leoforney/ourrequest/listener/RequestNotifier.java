@@ -12,21 +12,12 @@ import java.util.logging.Logger;
 
 public class RequestNotifier {
 
-    private static RequestNotifier notifier;
-
     private List<RequestListener> listeners;
 
     private static final Logger logger = Logger.getLogger(RequestNotifier.class.getName());
 
-    private RequestNotifier() {
+    public RequestNotifier() {
         listeners = new ArrayList<>();
-    }
-
-    public static RequestNotifier getInstance() {
-        if (notifier == null) {
-            notifier = new RequestNotifier();
-        }
-        return notifier;
     }
 
     public void addListener(RequestListener listener) {

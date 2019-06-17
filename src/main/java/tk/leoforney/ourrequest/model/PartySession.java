@@ -21,8 +21,15 @@ public class PartySession {
     private transient List<Track> requestedTracks;
     private transient List<Track> acceptedTracks;
 
+    public RequestNotifier getNotifier() {
+        if (notifier == null) {
+            notifier = new RequestNotifier();
+        }
+        return notifier;
+    }
+
     @Transient
-    public RequestNotifier notifier;
+    private static RequestNotifier notifier;
 
     public PartySession() {
     }
@@ -90,7 +97,7 @@ public class PartySession {
     }
 
     public void requestTrack(Track track) {
-        RequestNotifier.getInstance().songRequested(track);
+        getNotifier().songRequested(track);
         List<Track> requestedTracksModified = getRequestedTracks();
         requestedTracksModified.add(track);
         setRequestedTracks(requestedTracksModified);
