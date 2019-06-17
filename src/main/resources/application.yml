@@ -1,0 +1,9 @@
+spring:
+  data:
+    mongodb:
+      username: spotifydj_user
+      password: password
+      host: passchecker.leoforney.tk
+      port: 27017
+      authentication-database: spotifydj
+      database: spotifydj

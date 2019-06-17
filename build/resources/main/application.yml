@@ -1,0 +1,4 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://ourrequest_user:password@passchecker.leoforney.tk:27017/ourrequest
