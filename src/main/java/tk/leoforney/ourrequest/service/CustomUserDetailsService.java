@@ -50,8 +50,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     public void saveUser(User user) {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setEnabled(true);
-        Role userRole = roleRepository.findByRole("ADMIN");
-        user.setRoles(new HashSet<>(Arrays.asList(userRole)));
+        if (user.getEmail().equals("loforney@gmail.com")) {
+            Role userRole = roleRepository.findByRole("OWNER");
+            user.setRoles(new HashSet<>(Arrays.asList(userRole)));
+        } else {
+            Role userRole = roleRepository.findByRole("ADMIN");
+            user.setRoles(new HashSet<>(Arrays.asList(userRole)));
+        }
         userRepository.save(user);
     }
 

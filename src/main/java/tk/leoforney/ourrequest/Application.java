@@ -9,7 +9,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import tk.leoforney.ourrequest.model.Role;
+import tk.leoforney.ourrequest.model.User;
 import tk.leoforney.ourrequest.repository.RoleRepository;
+import tk.leoforney.ourrequest.service.CustomUserDetailsService;
 
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer implements ApplicationContextAware {
@@ -21,15 +23,31 @@ public class Application extends SpringBootServletInitializer implements Applica
     }
 
     @Bean
-    CommandLineRunner init(RoleRepository roleRepository) {
+    CommandLineRunner init(RoleRepository roleRepository, CustomUserDetailsService customUserDetailsService) {
 
         return args -> {
+
+            if (customUserDetailsService.findUserByEmail("loforney@gmail.com") == null) {
+                User jumpstart = new User();
+                jumpstart.setEmail("loforney@gmail.com");
+                jumpstart.setEnabled(true);
+                jumpstart.setFullname("Leo Forney");
+                jumpstart.setPassword("daryleo1");
+                customUserDetailsService.saveUser(jumpstart);
+            }
 
             Role adminRole = roleRepository.findByRole("ADMIN");
             if (adminRole == null) {
                 Role newAdminRole = new Role();
                 newAdminRole.setRole("ADMIN");
                 roleRepository.save(newAdminRole);
+            }
+
+            Role ownerRole = roleRepository.findByRole("OWNER");
+            if (adminRole == null) {
+                Role newOwnerRole = new Role();
+                newOwnerRole.setRole("OWNER");
+                roleRepository.save(newOwnerRole);
             }
 
             Role userRole = roleRepository.findByRole("USER");

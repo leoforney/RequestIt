@@ -57,6 +57,7 @@ public class ClientRequestView extends VerticalLayout implements HasUrlParameter
         sessionTitle = new H4("Request song for ");
 
         songTextField = new TextField("Song name");
+        songTextField.getElement().callFunction("focus");
 
         Button searchButton = new Button("Search");
         searchButton.setId("searchButton");
