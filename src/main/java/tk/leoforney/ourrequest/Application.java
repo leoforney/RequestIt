@@ -40,12 +40,6 @@ public class Application extends SpringBootServletInitializer implements Applica
                 customUserDetailsService.saveUser(jumpstart);
             }
 
-            User jumpstart = new User();
-            jumpstart.setEmail("testing@example.com");
-            jumpstart.setFullname("Santiago Currea");
-            jumpstart.setPassword("daryleo1");
-            customUserDetailsService.saveUser(jumpstart);
-
             Role adminRole = roleRepository.findByRole("ADMIN");
             if (adminRole == null) {
                 Role newAdminRole = new Role();
