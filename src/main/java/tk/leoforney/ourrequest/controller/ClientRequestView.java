@@ -1,9 +1,6 @@
 package tk.leoforney.ourrequest.controller;
 
-import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.ItemLabelGenerator;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
@@ -47,6 +44,9 @@ public class ClientRequestView extends VerticalLayout implements HasUrlParameter
     private String selectedSong;
     private RadioButtonGroup<Track> radioButtons;
     private TextField songTextField;
+    private Button searchButton, requestButton;
+    private String lastSearchedString = "";
+    private String currentTextFieldValue = "";
 
     public ClientRequestView() {
         spotifyAuthRepository = (SpotifyAuthRepository) appContext.getAutowireCapableBeanFactory().getBean("spotifyAuthRepository");
@@ -59,8 +59,16 @@ public class ClientRequestView extends VerticalLayout implements HasUrlParameter
 
         songTextField = new TextField("Song name");
         songTextField.getElement().callFunction("focus");
+        songTextField.addAttachListener((ComponentEventListener<AttachEvent>) event -> event.getUI().addShortcutListener(() -> {
 
-        Button searchButton = new Button("Search");
+            if (!radioButtons.getOptionalValue().isPresent() || !lastSearchedString.equals(songTextField.getValue())) { // Click search button
+                searchButton.click();
+            } else { // Click request button
+                requestButton.click();
+            }
+        }, Key.ENTER));
+
+        searchButton = new Button("Search");
         searchButton.setId("searchButton");
 
         searchButton.addClickListener(this);
@@ -72,10 +80,15 @@ public class ClientRequestView extends VerticalLayout implements HasUrlParameter
 
         add(sessionTitle, new HorizontalLayout(songTextField, searchButton), radioButtons);
 
-        Button requestButton = new Button("Request");
+        requestButton = new Button("Request");
         requestButton.setId("requestButton");
         requestButton.addClickListener(this);
         add(requestButton);
+
+        songTextField.addValueChangeListener((HasValue.ValueChangeListener<AbstractField.ComponentValueChangeEvent<TextField, String>>) changeEvent -> {
+            currentTextFieldValue = changeEvent.getValue();
+            System.out.println("Value changed: " + currentTextFieldValue);
+        });
 
     }
 
@@ -99,10 +112,12 @@ public class ClientRequestView extends VerticalLayout implements HasUrlParameter
         if (event instanceof ClickEvent) {
             event.getSource().getId().ifPresent(s -> {
                 if (s.equals("searchButton")) {
-                    if (!songTextField.getValue().equals("")) {
-                        List<Track> songs = searchController.searchSongs(sa, songTextField.getValue());
-
-                        radioButtons.setItems(songs);
+                    if (!currentTextFieldValue.equals("")) {
+                        if (!lastSearchedString.equals(currentTextFieldValue)) {
+                            List<Track> songs = searchController.searchSongs(sa, currentTextFieldValue);
+                            radioButtons.setItems(songs);
+                            lastSearchedString = currentTextFieldValue;
+                        }
                     } else {
                         Notification.show("You must type in a song name");
                     }

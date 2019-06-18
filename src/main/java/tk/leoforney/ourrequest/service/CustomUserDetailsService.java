@@ -50,10 +50,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public void saveUser(User user) {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setEnabled(true);
-        if (user.getEmail().equals("loforney@gmail.com")) {
-            Role userRole = roleRepository.findByRole("OWNER");
-            user.setRoles(new HashSet<>(Arrays.asList(userRole)));
-        } else {
+        if (user.getRoles() == null) {
             Role userRole = roleRepository.findByRole("ADMIN");
             user.setRoles(new HashSet<>(Arrays.asList(userRole)));
         }
@@ -94,7 +91,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
         User user = userRepository.findByEmail(email);
-        if(user != null) {
+        if (user != null) {
             List<GrantedAuthority> authorities = getUserAuthority(user.getRoles());
             return buildUserForAuthentication(user, authorities);
         } else {

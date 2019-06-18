@@ -13,6 +13,9 @@ import tk.leoforney.ourrequest.model.User;
 import tk.leoforney.ourrequest.repository.RoleRepository;
 import tk.leoforney.ourrequest.service.CustomUserDetailsService;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer implements ApplicationContextAware {
 
@@ -30,11 +33,18 @@ public class Application extends SpringBootServletInitializer implements Applica
             if (customUserDetailsService.findUserByEmail("loforney@gmail.com") == null) {
                 User jumpstart = new User();
                 jumpstart.setEmail("loforney@gmail.com");
-                jumpstart.setEnabled(true);
                 jumpstart.setFullname("Leo Forney");
                 jumpstart.setPassword("daryleo1");
+                Role userRole = roleRepository.findByRole("OWNER");
+                jumpstart.setRoles(new HashSet<>(Arrays.asList(userRole)));
                 customUserDetailsService.saveUser(jumpstart);
             }
+
+            User jumpstart = new User();
+            jumpstart.setEmail("testing@example.com");
+            jumpstart.setFullname("Santiago Currea");
+            jumpstart.setPassword("daryleo1");
+            customUserDetailsService.saveUser(jumpstart);
 
             Role adminRole = roleRepository.findByRole("ADMIN");
             if (adminRole == null) {
@@ -44,7 +54,7 @@ public class Application extends SpringBootServletInitializer implements Applica
             }
 
             Role ownerRole = roleRepository.findByRole("OWNER");
-            if (adminRole == null) {
+            if (ownerRole == null) {
                 Role newOwnerRole = new Role();
                 newOwnerRole.setRole("OWNER");
                 roleRepository.save(newOwnerRole);
