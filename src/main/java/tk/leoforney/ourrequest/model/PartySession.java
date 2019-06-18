@@ -8,7 +8,9 @@ import tk.leoforney.ourrequest.model.spotify.Track;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Document(collection = "partySessions")
 public class PartySession {
@@ -22,14 +24,20 @@ public class PartySession {
     private transient List<Track> acceptedTracks;
 
     public RequestNotifier getNotifier() {
-        if (notifier == null) {
-            notifier = new RequestNotifier();
+        if (notifierMap == null) {
+            notifierMap = new HashMap<>();
         }
-        return notifier;
+        if (!notifierMap.containsKey(_id)) {
+            RequestNotifier notifier = new RequestNotifier();
+            notifierMap.put(_id, notifier);
+            return notifier;
+        } else {
+            return notifierMap.get(_id);
+        }
     }
 
     @Transient
-    private static RequestNotifier notifier;
+    private static Map<String, RequestNotifier> notifierMap;
 
     public PartySession() {
     }

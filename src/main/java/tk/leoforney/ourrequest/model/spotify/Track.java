@@ -2,9 +2,17 @@ package tk.leoforney.ourrequest.model.spotify;
 
 public class Track {
 
-    private String id, name, previewUrl, type;
+    private String id, name, previewUrl, type, uri;
     private int durationMs, popularity;
     private boolean explicit;
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
 
     public String getId() {
         return id;
@@ -93,6 +101,7 @@ public class Track {
         durationMs = track.getDurationMs();
         popularity = track.getPopularity();
         explicit = track.getIsExplicit();
+        uri = track.getUri();
         artist = new Artist(track.getArtists()[0]);
         album = new Album(track.getAlbum());
     }

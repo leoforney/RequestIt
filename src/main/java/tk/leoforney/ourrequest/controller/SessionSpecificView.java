@@ -51,7 +51,6 @@ public class SessionSpecificView extends VerticalLayout implements ComponentEven
 
     @Override
     public void trackAdded(Track addedTrack) {
-        System.out.println("Track added");
         this.getUI().ifPresent(ui -> ui.access(new Command() {
             @Override
             public void execute() {
@@ -79,7 +78,6 @@ public class SessionSpecificView extends VerticalLayout implements ComponentEven
                 }
             }
         }));
-        System.out.println("Track added");
     }
 
     List<Track> refreshedRequestedTracks() {
