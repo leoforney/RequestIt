@@ -6,11 +6,12 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.*;
@@ -42,7 +43,7 @@ public class ClientRequestView extends VerticalLayout implements HasUrlParameter
     private PartySession session;
     private SpotifyAuthorization sa;
 
-    private H4 sessionTitle;
+    private H2 sessionTitle;
     private String selectedSong;
     private RadioButtonGroup<Track> radioButtons;
     private TextField songTextField;
@@ -54,7 +55,7 @@ public class ClientRequestView extends VerticalLayout implements HasUrlParameter
         queueService = (QueueService) appContext.getAutowireCapableBeanFactory().getBean("queueService");
         partySessions = (PartySessionRepository) appContext.getAutowireCapableBeanFactory().getBean("partySessionRepository");
 
-        sessionTitle = new H4("Request song for ");
+        sessionTitle = new H2("Request song for ");
 
         songTextField = new TextField("Song name");
         songTextField.getElement().callFunction("focus");
@@ -65,6 +66,7 @@ public class ClientRequestView extends VerticalLayout implements HasUrlParameter
         searchButton.addClickListener(this);
 
         radioButtons = new RadioButtonGroup<>();
+        radioButtons.addThemeVariants(RadioGroupVariant.MATERIAL_VERTICAL);
         radioButtons.setRenderer(new TextRenderer<>(
                 (ItemLabelGenerator<Track>) item -> item.getName() + " - " + item.getArtists()[0].getName()));
 

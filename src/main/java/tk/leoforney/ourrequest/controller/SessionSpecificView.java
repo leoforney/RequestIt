@@ -10,6 +10,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.Command;
@@ -24,7 +25,7 @@ import tk.leoforney.ourrequest.vaadin.MainLayout;
 import static tk.leoforney.ourrequest.Application.appContext;
 
 @Route(value = "session", layout = MainLayout.class)
-public class SessionSpecificView extends VerticalLayout implements RequestListener, HasUrlParameter<String> {
+public class SessionSpecificView extends VerticalLayout implements RequestListener, HasUrlParameter<String>, HasDynamicTitle {
 
     private H3 newestAddedSong;
     private ListBox<Track> trackListBox;
@@ -32,6 +33,7 @@ public class SessionSpecificView extends VerticalLayout implements RequestListen
     SpotifyAuthRepository spotifyAuthRepository;
     PartySessionRepository partySessionRepository;
     String sessionId;
+    String title;
 
     public SessionSpecificView() {
 
@@ -63,6 +65,7 @@ public class SessionSpecificView extends VerticalLayout implements RequestListen
         session.getNotifier().addListener(this);
 
         add(new H1("Session: " + session.getSessionName()));
+        title = "OurRequest | " + session.getSessionName();
         newestAddedSong = new H3("Newest added song: ");
         add(newestAddedSong);
 
@@ -91,5 +94,10 @@ public class SessionSpecificView extends VerticalLayout implements RequestListen
         }));
 
         add(trackListBox);
+    }
+
+    @Override
+    public String getPageTitle() {
+        return title;
     }
 }

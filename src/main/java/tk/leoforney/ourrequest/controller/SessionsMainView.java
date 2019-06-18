@@ -41,7 +41,10 @@ public class SessionsMainView extends VerticalLayout {
             sessionGrid.addItemDoubleClickListener(new ComponentEventListener<ItemDoubleClickEvent<PartySession>>() {
                 @Override
                 public void onComponentEvent(ItemDoubleClickEvent<PartySession> event) {
-                    event.getSource().getUI().ifPresent(ui -> ui.navigate("session/" + event.getItem().getId()));
+                    event.getSource().getUI().ifPresent(ui -> {
+                        ui.navigate("session/" + event.getItem().getId());
+                        ui.getPage().reload();
+                    });
                 }
             });
 
