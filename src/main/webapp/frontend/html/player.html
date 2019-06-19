@@ -1,0 +1,87 @@
+<div>
+    <script>
+        var _token = "BQDuSfoGO2M575jxo9WAHDQOV4aGNNOyuI3VNqBPsAe0IUb5cKJZwypDOcASuwpKkFAl3m6gCIM3CY3X8OLVNWTdkp7HWX4lcYC6LwXj8-UX8r6ls7lEzC6ycQu1URySfhzQMdAfk9NGvInOJ9rHytH8Hs_Y3vFz01IyStDtdQ";
+        var deviceId;
+        var spotifyReady = false;
+        var player;
+
+        function setToken(tokenData) {
+            _token = tokenData;
+            window.onSpotifyPlayerAPIReady = () => {
+                player = new Spotify.Player({
+                    name: 'OurRequest Browser Player',
+                    getOAuthToken: cb => {
+                        cb(tokenData);
+                    }
+                });
+
+                // Error handling
+                player.on('initialization_error', e => console.error(e));
+                player.on('authentication_error', e => console.error(e));
+                player.on('account_error', e => console.error(e));
+                player.on('playback_error', e => console.error(e));
+
+                // Playback status updates
+                player.on('player_state_changed', state => {
+                    console.log(state)
+                    $('#current-track').attr('src', state.track_window.current_track.album.images[0].url);
+                    $('#current-track-name').text(state.track_window.current_track.name);
+                });
+
+                // Ready
+                player.on('ready', data => {
+                    console.log('Ready with Device ID', data.device_id);
+
+                    // Play a track using our new device ID
+                    deviceId = data.device_id;
+
+                    document.getElementById("playerComponent").$server.setDeviceId(data.device_id);
+                    console.log(deviceId);
+                });
+
+                // Connect to the player!
+                player.connect();
+                spotifyReady = true;
+            }
+        }
+
+        function pause() {
+            player.pause().then(() => {
+                console.log('Paused!');
+            });
+        }
+
+        function resume() {
+            player.resume().then(() => {
+                console.log('Resumed!');
+            });
+        }
+
+        function toggle() {
+            player.togglePlay().then(() => {
+                console.log('Toggled playback!');
+            });
+        }
+
+        function setVolume(volume) {
+            player.setVolume(volume).then(() => {
+                console.log('Volume updated!');
+            });
+        }
+
+        // Play a specified track on the Web Playback SDK's device ID
+        function play(uriData) {
+            $.ajax({
+                url: "https://api.spotify.com/v1/me/player/play?device_id=" + deviceId,
+                type: "PUT",
+                data: '{"uris": ["' + uriData + '"]}',
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + _token);
+                },
+                success: function (data) {
+                    console.log(data)
+                }
+            });
+        }
+    </script>
+</div>

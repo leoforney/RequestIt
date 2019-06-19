@@ -57,7 +57,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    public void refreshAccessToken(String email) {
+    public SpotifyAuthorization refreshAccessToken(String email) {
         User user = userRepository.findByEmail(email);
         SpotifyAuthorization auth = spotifyAuthRepository.findByEmail(email);
 
@@ -81,9 +81,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
             spotifyAuthRepository.save(auth);
 
+            return auth;
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return null;
 
     }
 

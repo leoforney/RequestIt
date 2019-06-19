@@ -60,7 +60,8 @@ public class ClientRequestView extends VerticalLayout implements HasUrlParameter
         songTextField = new TextField("Song name");
         songTextField.getElement().callFunction("focus");
         songTextField.addAttachListener((ComponentEventListener<AttachEvent>) event -> event.getUI().addShortcutListener(() -> {
-            if (!radioButtons.getOptionalValue().isPresent() || !lastSearchedString.equals(songTextField.getValue())) { // Click search button
+            if (!radioButtons.getOptionalValue().isPresent() ||
+                    !lastSearchedString.equals(songTextField.getValue())) { // Click search button
                 searchButton.click();
             } else { // Click request button
                 requestButton.click();

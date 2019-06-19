@@ -15,6 +15,7 @@ sourceCompatibility = '1.8'
 
 repositories {
     mavenCentral()
+    maven { url 'http://maven.vaadin.com/vaadin-addons' }
 }
 
 ext['tomcat.version'] = '8.5.39'
@@ -27,12 +28,10 @@ compileJava {
 dependencies {
     implementation 'com.vaadin:vaadin-spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    //implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    //implementation 'org.springframework.session:spring-session-core'
     implementation 'com.squareup.okhttp3:okhttp:4.0.0-alpha02'
-    implementation 'com.vaadin.componentfactory:autocomplete:1.2.0'
+    implementation 'org.vaadin.zhe:paper-range-slider:1.0.0'
     implementation 'se.michaelthelin.spotify:spotify-web-api-java:2.1.2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
