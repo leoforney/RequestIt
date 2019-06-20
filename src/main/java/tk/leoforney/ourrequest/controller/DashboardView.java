@@ -48,6 +48,7 @@ public class DashboardView extends VerticalLayout {
                 Anchor anchor = new Anchor("https://accounts.spotify.com/authorize" +
                         "?client_id=6bef4555fccb4908a6f5fbafcb6604f1&" +
                         "response_type=code&" +
+                        "scope=streaming,user-read-birthdate,user-read-email,user-read-private&" +
                         "redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fdashboard%2Fspotify&" +
                         "state=" + user.getId(), "Link Spotify");
                 add(anchor);

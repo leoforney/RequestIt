@@ -7,6 +7,7 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
 import org.vaadin.zhe.PaperRangeSlider;
+import tk.leoforney.ourrequest.controller.player.model.SpotifyWebState;
 import tk.leoforney.ourrequest.model.PartySession;
 import tk.leoforney.ourrequest.model.SpotifyAuthorization;
 import tk.leoforney.ourrequest.repository.PartySessionRepository;
@@ -17,7 +18,7 @@ import tk.leoforney.ourrequest.vaadin.MainLayout;
 import static tk.leoforney.ourrequest.Application.appContext;
 
 @Route(value = "play", layout = MainLayout.class)
-public class PlayerView extends VerticalLayout implements RouterLayout, HasUrlParameter<String>, HasDynamicTitle, ComponentEventListener<PaperRangeSlider.MaxValueChangeEvent> {
+public class PlayerView extends VerticalLayout implements PlayerComponent.StateChangeCallback, RouterLayout, HasUrlParameter<String>, HasDynamicTitle, ComponentEventListener<PaperRangeSlider.MaxValueChangeEvent> {
 
     CustomUserDetailsService userService;
     SpotifyAuthRepository spotifyAuthRepository;
@@ -42,30 +43,19 @@ public class PlayerView extends VerticalLayout implements RouterLayout, HasUrlPa
         this.sessionId = sessionId;
         PartySession session = partySessionRepository.findBy_id(sessionId);
 
-
-
         authorization = spotifyAuthRepository.findByEmail(session.getEmail());
         if (!authorization.isValid()) {
             authorization = userService.refreshAccessToken(authorization.getEmail());
         }
 
         component = new PlayerComponent(this, authorization);
+        component.addCallback(this);
 
         Button button = new Button("Play");
-        button.addClickListener(new ComponentEventListener<ClickEvent<Button>>() {
-            @Override
-            public void onComponentEvent(ClickEvent<Button> event) {
-                component.playSong(session.getRequestedTracks().get(0));
-            }
-        });
+        button.addClickListener((ComponentEventListener<ClickEvent<Button>>) event1 -> component.playSong(session.getRequestedTracks().get(0)));
 
         Button pauseButton = new Button("Toggle Playback");
-        pauseButton.addClickListener(new ComponentEventListener<ClickEvent<Button>>() {
-            @Override
-            public void onComponentEvent(ClickEvent<Button> event) {
-                component.togglePlayback();
-            }
-        });
+        pauseButton.addClickListener((ComponentEventListener<ClickEvent<Button>>) event12 -> component.togglePlayback());
 
         PaperRangeSlider paperRangeSlider = new PaperRangeSlider();
         add(paperRangeSlider);
@@ -90,5 +80,10 @@ public class PlayerView extends VerticalLayout implements RouterLayout, HasUrlPa
     @Override
     public void onComponentEvent(PaperRangeSlider.MaxValueChangeEvent event) {
         component.setVolume(event.getValueMax()/100);
+    }
+
+    @Override
+    public void stateChanged(SpotifyWebState state) {
+
     }
 }

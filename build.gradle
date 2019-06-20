@@ -22,7 +22,6 @@ ext['tomcat.version'] = '8.5.39'
 
 compileJava {
     archivesBaseName = "OurRequest"
-    
 }
 
 dependencies {
