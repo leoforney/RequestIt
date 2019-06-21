@@ -6,6 +6,14 @@ import com.google.gson.annotations.SerializedName;
 
 public class Context {
 
+    @Override
+    public String toString() {
+        return "Context{" +
+                "uri=" + uri +
+                ", metadata=" + metadata +
+                '}';
+    }
+
     @SerializedName("uri")
     @Expose
     private Object uri;

@@ -36,6 +36,24 @@ public class SpotifyWebState {
     @SerializedName("restrictions")
     @Expose
     private Restrictions restrictions;
+
+    @Override
+    public String toString() {
+        return "SpotifyWebState{" +
+                "context=" + context +
+                ", bitrate=" + bitrate +
+                ", position=" + position +
+                ", duration=" + duration +
+                ", paused=" + paused +
+                ", shuffle=" + shuffle +
+                ", repeatMode=" + repeatMode +
+                ", trackWindow=" + trackWindow +
+                ", timestamp=" + timestamp +
+                ", restrictions=" + restrictions +
+                ", disallows=" + disallows +
+                '}';
+    }
+
     @SerializedName("disallows")
     @Expose
     private Disallows disallows;

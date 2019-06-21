@@ -9,6 +9,15 @@ public class Disallows {
     @SerializedName("pausing")
     @Expose
     private Boolean pausing;
+
+    @Override
+    public String toString() {
+        return "Disallows{" +
+                "pausing=" + pausing +
+                ", skippingPrev=" + skippingPrev +
+                '}';
+    }
+
     @SerializedName("skipping_prev")
     @Expose
     private Boolean skippingPrev;

@@ -6,6 +6,14 @@ import com.google.gson.annotations.SerializedName;
 
 public class Artist {
 
+    @Override
+    public String toString() {
+        return "Artist{" +
+                "name='" + name + '\'' +
+                ", uri='" + uri + '\'' +
+                '}';
+    }
+
     @SerializedName("name")
     @Expose
     private String name;

@@ -6,6 +6,14 @@ import com.google.gson.annotations.SerializedName;
 
 public class LinkedFrom {
 
+    @Override
+    public String toString() {
+        return "LinkedFrom{" +
+                "uri=" + uri +
+                ", id=" + id +
+                '}';
+    }
+
     @SerializedName("uri")
     @Expose
     private Object uri;

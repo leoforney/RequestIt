@@ -38,6 +38,24 @@ public class CurrentTrack {
     @SerializedName("album")
     @Expose
     private Album album;
+
+    @Override
+    public String toString() {
+        return "CurrentTrack{" +
+                "id='" + id + '\'' +
+                ", uri='" + uri + '\'' +
+                ", type='" + type + '\'' +
+                ", linkedFromUri=" + linkedFromUri +
+                ", linkedFrom=" + linkedFrom +
+                ", mediaType='" + mediaType + '\'' +
+                ", name='" + name + '\'' +
+                ", durationMs=" + durationMs +
+                ", artists=" + artists +
+                ", album=" + album +
+                ", isPlayable=" + isPlayable +
+                '}';
+    }
+
     @SerializedName("is_playable")
     @Expose
     private Boolean isPlayable;

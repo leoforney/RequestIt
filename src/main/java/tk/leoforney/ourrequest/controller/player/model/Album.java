@@ -11,6 +11,16 @@ public class Album {
     @SerializedName("uri")
     @Expose
     private String uri;
+
+    @Override
+    public String toString() {
+        return "Album{" +
+                "uri='" + uri + '\'' +
+                ", name='" + name + '\'' +
+                ", images=" + images +
+                '}';
+    }
+
     @SerializedName("name")
     @Expose
     private String name;

@@ -9,6 +9,16 @@ public class Image {
     @SerializedName("url")
     @Expose
     private String url;
+
+    @Override
+    public String toString() {
+        return "Image{" +
+                "url='" + url + '\'' +
+                ", height=" + height +
+                ", width=" + width +
+                '}';
+    }
+
     @SerializedName("height")
     @Expose
     private Integer height;

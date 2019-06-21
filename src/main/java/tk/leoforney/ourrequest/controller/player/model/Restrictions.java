@@ -8,6 +8,14 @@ import java.util.List;
 
 public class Restrictions {
 
+    @Override
+    public String toString() {
+        return "Restrictions{" +
+                "disallowPausingReasons=" + disallowPausingReasons +
+                ", disallowSkippingPrevReasons=" + disallowSkippingPrevReasons +
+                '}';
+    }
+
     @SerializedName("disallow_pausing_reasons")
     @Expose
     private List<String> disallowPausingReasons = null;

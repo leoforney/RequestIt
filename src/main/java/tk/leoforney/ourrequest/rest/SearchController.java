@@ -2,6 +2,8 @@ package tk.leoforney.ourrequest.rest;
 
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
+import com.wrapper.spotify.model_objects.specification.Paging;
+import com.wrapper.spotify.model_objects.specification.PlaylistSimplified;
 import com.wrapper.spotify.model_objects.specification.Track;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +84,28 @@ public class SearchController {
         } else {
             return new ArrayList<>();
         }
+    }
+
+    public PlaylistSimplified[] getPlaylist(SpotifyAuthorization authorization) {
+        if (!authorization.isValid()) {
+            userService.refreshAccessToken(authorization.getEmail());
+            authorization = spotifyAuthRepository.findByEmail(authorization.getEmail());
+        }
+
+        SpotifyApi spotifyApi = new SpotifyApi.Builder()
+                .setAccessToken(authorization.getToken().getAccess_token()).build();
+
+        try {
+            Paging<PlaylistSimplified> playlists = spotifyApi.getListOfCurrentUsersPlaylists().build().execute();
+            return playlists.getItems();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SpotifyWebApiException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
     }
 
     public List<Track> searchSongs(SpotifyAuthorization authorization, String songName) {

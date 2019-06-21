@@ -37,11 +37,12 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
     private String sessionId;
     private SpotifyAuthorization authorization;
     private PlayerComponent component;
+    private PartySession session;
 
     @Override
     public void setParameter(BeforeEvent event, String sessionId) {
         this.sessionId = sessionId;
-        PartySession session = partySessionRepository.findBy_id(sessionId);
+        session = partySessionRepository.findBy_id(sessionId);
 
         authorization = spotifyAuthRepository.findByEmail(session.getEmail());
         if (!authorization.isValid()) {
@@ -82,8 +83,20 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
         component.setVolume(event.getValueMax()/100);
     }
 
+    int currentSong = 0;
+    long lastTimestamp = 0;
+
     @Override
     public void stateChanged(SpotifyWebState state) {
-
+        if (state.getPosition() == 0 && state.getPaused()) { // Next song requested
+            if (session.getRequestedTracks().size() > currentSong+2) {
+                if (lastTimestamp+500 < System.currentTimeMillis()) {
+                    currentSong++;
+                    // Execute next song from playing queue
+                    component.playSong(session.getRequestedTracks().get(currentSong));
+                }
+                lastTimestamp = System.currentTimeMillis();
+            }
+        }
     }
 }

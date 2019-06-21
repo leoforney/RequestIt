@@ -11,6 +11,16 @@ public class TrackWindow {
     @SerializedName("current_track")
     @Expose
     private CurrentTrack currentTrack;
+
+    @Override
+    public String toString() {
+        return "TrackWindow{" +
+                "currentTrack=" + currentTrack +
+                ", nextTracks=" + nextTracks +
+                ", previousTracks=" + previousTracks +
+                '}';
+    }
+
     @SerializedName("next_tracks")
     @Expose
     private List<Object> nextTracks = null;
