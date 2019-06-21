@@ -75,7 +75,7 @@
             $.ajax({
                 url: "https://api.spotify.com/v1/me/player/play?device_id=" + deviceId,
                 type: "PUT",
-                data: '{"uris": ["' + uriData + '"]}',
+                data: '{"uris": ["' + uriData + ']}',
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', 'Bearer ' + _token);
                 },

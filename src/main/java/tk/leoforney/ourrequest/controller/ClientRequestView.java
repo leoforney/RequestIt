@@ -2,6 +2,7 @@ package tk.leoforney.ourrequest.controller;
 
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
@@ -18,6 +19,7 @@ import com.wrapper.spotify.model_objects.specification.Track;
 import tk.leoforney.ourrequest.model.PartySession;
 import tk.leoforney.ourrequest.model.SpotifyAuthorization;
 import tk.leoforney.ourrequest.repository.PartySessionRepository;
+import tk.leoforney.ourrequest.repository.RatingRepository;
 import tk.leoforney.ourrequest.repository.SpotifyAuthRepository;
 import tk.leoforney.ourrequest.rest.SearchController;
 import tk.leoforney.ourrequest.service.QueueService;
@@ -36,6 +38,7 @@ public class ClientRequestView extends VerticalLayout implements HasUrlParameter
     private SearchController searchController;
     private QueueService queueService;
     private PartySessionRepository partySessions;
+    private RatingRepository ratingRepository;
 
     private PartySession session;
     private SpotifyAuthorization sa;
@@ -47,6 +50,7 @@ public class ClientRequestView extends VerticalLayout implements HasUrlParameter
     private Button searchButton, requestButton;
     private String lastSearchedString = "";
     private String currentTextFieldValue = "";
+    private boolean firstRequest = true;
 
     public ClientRequestView() {
         spotifyAuthRepository = (SpotifyAuthRepository) appContext.getAutowireCapableBeanFactory().getBean("spotifyAuthRepository");
@@ -54,6 +58,7 @@ public class ClientRequestView extends VerticalLayout implements HasUrlParameter
         searchController = (SearchController) appContext.getAutowireCapableBeanFactory().getBean("searchController");
         queueService = (QueueService) appContext.getAutowireCapableBeanFactory().getBean("queueService");
         partySessions = (PartySessionRepository) appContext.getAutowireCapableBeanFactory().getBean("partySessionRepository");
+        ratingRepository = (RatingRepository) appContext.getAutowireCapableBeanFactory().getBean("ratingRepository");
 
         sessionTitle = new H2("Request song for ");
 
@@ -125,7 +130,26 @@ public class ClientRequestView extends VerticalLayout implements HasUrlParameter
                     if (radioButtons.getOptionalValue().isPresent() && session != null) {
                         boolean added = queueService.queueSong(session, radioButtons.getValue());
                         if (added) {
-                            Notification.show("Request for " + radioButtons.getValue().getName() + " put in.");
+                            if (firstRequest) {
+                                Dialog dialog = new Dialog();
+                                dialog.setWidth("350px");
+                                RatingDialog rd = new RatingDialog();
+                                rd.submitButton.addClickListener(new ComponentEventListener<ClickEvent<Button>>() {
+                                    @Override
+                                    public void onComponentEvent(ClickEvent<Button> event) {
+                                        ratingRepository.save(rd.getRating());
+                                        dialog.close();
+                                        firstRequest = false;
+                                        Notification.show("Request for " + radioButtons.getValue().getName() + " put in.");
+                                    }
+                                });
+                                dialog.add(rd);
+                                dialog.open();
+                            } else {
+                                Notification.show("Request for " + radioButtons.getValue().getName() + " put in.");
+                            }
+
+
                         } else {
                             Notification.show("This song is already requested!");
                         }

@@ -1,5 +1,6 @@
 package tk.leoforney.ourrequest.service;
 
+import com.wrapper.spotify.model_objects.specification.PlaylistSimplified;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
@@ -42,11 +43,9 @@ public class QueueService {
 
         return queueSong(session, topSelectedSong);
     }
-
     public boolean queueSong(PartySession session, com.wrapper.spotify.model_objects.specification.Track selectedTrack) {
         return queueSong(session, new Track(selectedTrack));
     }
-
     public boolean queueSong(PartySession session, Track selectedTrack) {
 
         List<Track> queuedList = partySessions.findBy_id(session.getId()).getRequestedTracks();
@@ -65,6 +64,8 @@ public class QueueService {
 
     }
 
-
+    public List<Track> getQueueFromPlaylist(PartySession session, PlaylistSimplified playlist) {
+        return null;
+    }
 
 }

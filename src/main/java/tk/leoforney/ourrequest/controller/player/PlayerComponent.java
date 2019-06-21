@@ -40,7 +40,10 @@ public class PlayerComponent extends Component {
     }
 
     public void playSong(String uri) {
-        getElement().executeJavaScript("play('" + uri + "')");
+        getElement().executeJavaScript("play('" + uri + "\"')");
+    }
+
+    public void playSong(List<Track> trackList) {
 
     }
 
