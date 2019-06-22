@@ -58,6 +58,12 @@
             });
         }
 
+        function next() {
+            player.nextTrack().then(() => {
+                console.log("Next song!");
+            });
+        }
+
         function toggle() {
             player.togglePlay().then(() => {
                 console.log('Toggled playback!');

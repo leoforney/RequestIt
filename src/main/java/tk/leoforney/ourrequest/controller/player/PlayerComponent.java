@@ -51,6 +51,14 @@ public class PlayerComponent extends Component {
         playSong(track.getUri());
     }
 
+    public void next() {
+        getElement().executeJavaScript("next()");
+    }
+
+    public void previous() {
+        getElement().executeJavaScript("console.log('Not yet implemented')");
+    }
+
     public void pause() {
         getElement().executeJavaScript("pause()");
     }

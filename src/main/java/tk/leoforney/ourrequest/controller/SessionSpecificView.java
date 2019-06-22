@@ -31,7 +31,7 @@ import java.util.List;
 import static tk.leoforney.ourrequest.Application.appContext;
 
 @Route(value = "session", layout = MainLayout.class)
-public class SessionSpecificView extends VerticalLayout implements ComponentEventListener<ClickEvent<Button>>, RequestListener, HasUrlParameter<String>, HasDynamicTitle {
+public class SessionSpecificView extends VerticalLayout implements RequestListener, HasUrlParameter<String>, HasDynamicTitle {
 
     private H3 newestAddedSong;
     private ListBox<Track> trackListBox;
@@ -62,11 +62,11 @@ public class SessionSpecificView extends VerticalLayout implements ComponentEven
 
                 Button acceptButton = new Button("Accept");
                 acceptButton.setId("acceptButtonNotification");
-                acceptButton.addClickListener(SessionSpecificView.this::onComponentEvent);
+                acceptButton.addClickListener((ComponentEventListener<ClickEvent<Button>>) event -> acceptTrack(addedTrack));
 
                 Button declineButton = new Button("Decline");
                 acceptButton.setId("declineButtonNotification");
-                declineButton.addClickListener(SessionSpecificView.this::onComponentEvent);
+                declineButton.addClickListener((ComponentEventListener<ClickEvent<Button>>) event -> declineTrack(addedTrack));
 
                 notification.add(new VerticalLayout(label, new HorizontalLayout(acceptButton, declineButton)));
 
@@ -83,11 +83,16 @@ public class SessionSpecificView extends VerticalLayout implements ComponentEven
     List<Track> refreshedRequestedTracks() {
         return partySessionRepository.findBy_id(sessionId).getRequestedTracks();
     }
+    List<Track> refreshedAcceptedTracks() {
+        return partySessionRepository.findBy_id(sessionId).getAcceptedTracks();
+    }
+
+    PartySession session;
 
     @Override
     public void setParameter(BeforeEvent beforeEvent, String sessionId) {
         this.sessionId = sessionId;
-        PartySession session = partySessionRepository.findBy_id(sessionId);
+        session = partySessionRepository.findBy_id(sessionId);
 
         session.getNotifier().addListener(this);
 
@@ -128,14 +133,14 @@ public class SessionSpecificView extends VerticalLayout implements ComponentEven
         return title;
     }
 
-    @Override
-    public void onComponentEvent(ClickEvent event) {
-        String id = "";
-        if (event.getSource().getId().isPresent()) id = event.getSource().getId().get();
-        if (id.contains("acceptButton")) {
+    public void acceptTrack(Track track) {
+        List<Track> acceptedTracks = refreshedAcceptedTracks();
+        acceptedTracks.add(track);
+        session.setAcceptedTracks(acceptedTracks);
+        partySessionRepository.save(session);
+    }
 
-        } if (id.contains("declienButton")) {
+    public void declineTrack(Track track) {
 
-        }
     }
 }

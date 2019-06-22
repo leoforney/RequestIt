@@ -96,6 +96,10 @@ public class PartySession {
         return requestedTracks;
     }
 
+    public boolean isValid() {
+        return LocalDate.now().isBefore(expiration);
+    }
+
     public void setRequestedTracks(List<Track> requestedTracks) {
         this.requestedTracks = requestedTracks;
     }

@@ -4,6 +4,9 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
 import org.vaadin.zhe.PaperRangeSlider;
@@ -38,36 +41,54 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
     private SpotifyAuthorization authorization;
     private PlayerComponent component;
     private PartySession session;
+    private Button playPauseButton;
+    private boolean firstPlayPush = false;
 
     @Override
     public void setParameter(BeforeEvent event, String sessionId) {
         this.sessionId = sessionId;
         session = partySessionRepository.findBy_id(sessionId);
 
-        authorization = spotifyAuthRepository.findByEmail(session.getEmail());
-        if (!authorization.isValid()) {
-            authorization = userService.refreshAccessToken(authorization.getEmail());
+        if (session.isValid()) {
+            authorization = spotifyAuthRepository.findByEmail(session.getEmail());
+            if (!authorization.isValid()) {
+                authorization = userService.refreshAccessToken(authorization.getEmail());
+            }
+
+            component = new PlayerComponent(this, authorization);
+            component.addCallback(this);
+
+            playPauseButton = new Button(VaadinIcon.PLAY.create());
+            playPauseButton.addClickListener(new ComponentEventListener<ClickEvent<Button>>() {
+                @Override
+                public void onComponentEvent(ClickEvent<Button> event) {
+                    if (!firstPlayPush) {
+                        component.playSong(session.getRequestedTracks().get(0));
+                        firstPlayPush = true;
+                    } else {
+                        component.togglePlayback();
+                    }
+                }
+            });
+
+            Button nextButton = new Button(VaadinIcon.FORWARD.create());
+            nextButton.addClickListener((ComponentEventListener<ClickEvent<Button>>) event12 -> component.next());
+
+            Button lastButton = new Button(VaadinIcon.BACKWARDS.create());
+            lastButton.addClickListener((ComponentEventListener<ClickEvent<Button>>) event1 -> component.previous());
+
+            PaperRangeSlider paperRangeSlider = new PaperRangeSlider();
+            add(paperRangeSlider);
+            paperRangeSlider.setSingleSlider(true);
+            paperRangeSlider.setMin(0);
+            paperRangeSlider.setMax(100);
+
+            paperRangeSlider.addMaxValueChangeListener(this);
+
+            add(new HorizontalLayout(lastButton, playPauseButton, nextButton, new Label("Volume: "), paperRangeSlider));
+            add(component);
+
         }
-
-        component = new PlayerComponent(this, authorization);
-        component.addCallback(this);
-
-        Button button = new Button("Play");
-        button.addClickListener((ComponentEventListener<ClickEvent<Button>>) event1 -> component.playSong(session.getRequestedTracks().get(0)));
-
-        Button pauseButton = new Button("Toggle Playback");
-        pauseButton.addClickListener((ComponentEventListener<ClickEvent<Button>>) event12 -> component.togglePlayback());
-
-        PaperRangeSlider paperRangeSlider = new PaperRangeSlider();
-        add(paperRangeSlider);
-        paperRangeSlider.setSingleSlider(true);
-        paperRangeSlider.setMin(0);
-        paperRangeSlider.setMax(100);
-
-        paperRangeSlider.addMaxValueChangeListener(this);
-
-        add(button, pauseButton, paperRangeSlider);
-        add(component);
 
     }
 
@@ -89,14 +110,22 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
     @Override
     public void stateChanged(SpotifyWebState state) {
         if (state.getPosition() == 0 && state.getPaused()) { // Next song requested
-            if (session.getRequestedTracks().size() > currentSong+2) {
+            session = partySessionRepository.findBy_id(sessionId);
+            if (session.getRequestedTracks().size() > currentSong+1) {
                 if (lastTimestamp+500 < System.currentTimeMillis()) {
                     currentSong++;
                     // Execute next song from playing queue
                     component.playSong(session.getRequestedTracks().get(currentSong));
                 }
                 lastTimestamp = System.currentTimeMillis();
+            } else {
+                // Queue completed, show reset button
             }
+        }
+        if (!state.getPaused()) {
+            playPauseButton.setIcon(VaadinIcon.PAUSE.create());
+        } else {
+            playPauseButton.setIcon(VaadinIcon.PLAY.create());
         }
     }
 }

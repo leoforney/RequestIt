@@ -4,6 +4,7 @@ import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.specification.Paging;
 import com.wrapper.spotify.model_objects.specification.PlaylistSimplified;
+import com.wrapper.spotify.model_objects.specification.PlaylistTrack;
 import com.wrapper.spotify.model_objects.specification.Track;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,14 +87,9 @@ public class SearchController {
         }
     }
 
-    public PlaylistSimplified[] getPlaylist(SpotifyAuthorization authorization) {
-        if (!authorization.isValid()) {
-            userService.refreshAccessToken(authorization.getEmail());
-            authorization = spotifyAuthRepository.findByEmail(authorization.getEmail());
-        }
+    public PlaylistSimplified[] getPlaylists(SpotifyAuthorization authorization) {
 
-        SpotifyApi spotifyApi = new SpotifyApi.Builder()
-                .setAccessToken(authorization.getToken().getAccess_token()).build();
+        SpotifyApi spotifyApi = getSpotifyApi(authorization);
 
         try {
             Paging<PlaylistSimplified> playlists = spotifyApi.getListOfCurrentUsersPlaylists().build().execute();
@@ -108,15 +104,37 @@ public class SearchController {
 
     }
 
-    public List<Track> searchSongs(SpotifyAuthorization authorization, String songName) {
+    public List<Track> getTracksInPlaylist(SpotifyAuthorization authorization, PlaylistSimplified playlist) {
+        SpotifyApi spotifyApi = getSpotifyApi(authorization);
 
-        if (!authorization.isValid()) {
-            userService.refreshAccessToken(authorization.getEmail());
-            authorization = spotifyAuthRepository.findByEmail(authorization.getEmail());
+        try {
+            Paging<PlaylistTrack> paging = spotifyApi.getPlaylistsTracks(playlist.getId()).build().execute();
+            int totalSize = playlist.getTracks().getTotal();
+            int totalIterations = Math.round(totalSize/100);
+            List<PlaylistTrack> allTracks = new ArrayList<>();
+            allTracks.addAll(Arrays.asList(paging.getItems()));
+            /*
+            for (int i = 0; i < totalIterations; i++) {
+                if (i > 0) {
+
+                }
+
+            }*/
+            // TODO: Complete pagination through all the tracks on the playlist
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SpotifyWebApiException e) {
+            e.printStackTrace();
         }
 
-        SpotifyApi spotifyApi = new SpotifyApi.Builder()
-                .setAccessToken(authorization.getToken().getAccess_token()).build();
+        return null;
+
+    }
+
+    public List<Track> searchSongs(SpotifyAuthorization authorization, String songName) {
+
+        SpotifyApi spotifyApi = getSpotifyApi(authorization);
 
         try {
             return Arrays.asList(spotifyApi.searchTracks(songName).limit(5).build().execute().getItems());
@@ -125,6 +143,21 @@ public class SearchController {
         }
 
         return new ArrayList<>();
+    }
+
+    public SpotifyApi getSpotifyApi(SpotifyAuthorization authorization) {
+        refreshAuthorizationIfNeeded(authorization);
+
+        return new SpotifyApi.Builder()
+                .setAccessToken(authorization.getToken().getAccess_token()).build();
+    }
+
+    public SpotifyAuthorization refreshAuthorizationIfNeeded(SpotifyAuthorization authorization) {
+        if (!authorization.isValid()) {
+            userService.refreshAccessToken(authorization.getEmail());
+            authorization = spotifyAuthRepository.findByEmail(authorization.getEmail());
+        }
+        return authorization;
     }
 
 }
