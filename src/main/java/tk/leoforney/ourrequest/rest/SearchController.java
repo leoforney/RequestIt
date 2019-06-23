@@ -104,15 +104,17 @@ public class SearchController {
 
     }
 
-    public List<Track> getTracksInPlaylist(SpotifyAuthorization authorization, PlaylistSimplified playlist) {
+    public List<tk.leoforney.ourrequest.model.spotify.Track> getTracksInPlaylist(SpotifyAuthorization authorization, PlaylistSimplified playlist) {
         SpotifyApi spotifyApi = getSpotifyApi(authorization);
 
         try {
             Paging<PlaylistTrack> paging = spotifyApi.getPlaylistsTracks(playlist.getId()).build().execute();
             int totalSize = playlist.getTracks().getTotal();
             int totalIterations = Math.round(totalSize/100);
-            List<PlaylistTrack> allTracks = new ArrayList<>();
-            allTracks.addAll(Arrays.asList(paging.getItems()));
+            List<tk.leoforney.ourrequest.model.spotify.Track> tracksConverted = new ArrayList<>();
+            for (PlaylistTrack pt: paging.getItems()) {
+                tracksConverted.add(new tk.leoforney.ourrequest.model.spotify.Track(pt.getTrack()));
+            }
             /*
             for (int i = 0; i < totalIterations; i++) {
                 if (i > 0) {
@@ -121,7 +123,7 @@ public class SearchController {
 
             }*/
             // TODO: Complete pagination through all the tracks on the playlist
-
+            return tracksConverted;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (SpotifyWebApiException e) {

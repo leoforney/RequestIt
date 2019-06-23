@@ -106,5 +106,4 @@ public class Track {
         album = new Album(track.getAlbum());
     }
 
-
 }

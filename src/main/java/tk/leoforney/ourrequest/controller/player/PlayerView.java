@@ -1,22 +1,28 @@
 package tk.leoforney.ourrequest.controller.player;
 
-import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
+import com.wrapper.spotify.model_objects.specification.PlaylistSimplified;
 import org.vaadin.zhe.PaperRangeSlider;
 import tk.leoforney.ourrequest.controller.player.model.SpotifyWebState;
 import tk.leoforney.ourrequest.model.PartySession;
 import tk.leoforney.ourrequest.model.SpotifyAuthorization;
+import tk.leoforney.ourrequest.model.spotify.Track;
 import tk.leoforney.ourrequest.repository.PartySessionRepository;
 import tk.leoforney.ourrequest.repository.SpotifyAuthRepository;
+import tk.leoforney.ourrequest.rest.SearchController;
 import tk.leoforney.ourrequest.service.CustomUserDetailsService;
 import tk.leoforney.ourrequest.vaadin.MainLayout;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static tk.leoforney.ourrequest.Application.appContext;
 
@@ -26,12 +32,14 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
     CustomUserDetailsService userService;
     SpotifyAuthRepository spotifyAuthRepository;
     PartySessionRepository partySessionRepository;
+    SearchController searchController;
 
     public PlayerView() {
 
         userService = (CustomUserDetailsService) appContext.getAutowireCapableBeanFactory().getBean("customUserDetailsService");
         spotifyAuthRepository = (SpotifyAuthRepository) appContext.getAutowireCapableBeanFactory().getBean("spotifyAuthRepository");
         partySessionRepository = (PartySessionRepository) appContext.getAutowireCapableBeanFactory().getBean("partySessionRepository");
+        searchController = (SearchController) appContext.getAutowireCapableBeanFactory().getBean("searchController");
 
         add(new H2("Player"));
 
@@ -62,11 +70,13 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
             playPauseButton.addClickListener(new ComponentEventListener<ClickEvent<Button>>() {
                 @Override
                 public void onComponentEvent(ClickEvent<Button> event) {
-                    if (!firstPlayPush) {
-                        component.playSong(session.getRequestedTracks().get(0));
-                        firstPlayPush = true;
-                    } else {
-                        component.togglePlayback();
+                    if (allTrackList.size() != 0) {
+                        if (!firstPlayPush) {
+                            component.playSong(session.getRequestedTracks().get(0));
+                            firstPlayPush = true;
+                        } else {
+                            component.togglePlayback();
+                        }
                     }
                 }
             });
@@ -85,12 +95,32 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
 
             paperRangeSlider.addMaxValueChangeListener(this);
 
+            ComboBox<PlaylistSimplified> selectPlaylist = new ComboBox<>();
+            selectPlaylist.setItems(searchController.getPlaylists(authorization));
+            selectPlaylist.setItemLabelGenerator(new ItemLabelGenerator<PlaylistSimplified>() {
+                @Override
+                public String apply(PlaylistSimplified item) {
+                    return item.getName();
+                }
+            });
+            selectPlaylist.addValueChangeListener(new HasValue.ValueChangeListener<AbstractField.ComponentValueChangeEvent<ComboBox<PlaylistSimplified>, PlaylistSimplified>>() {
+                @Override
+                public void valueChanged(AbstractField.ComponentValueChangeEvent<ComboBox<PlaylistSimplified>, PlaylistSimplified> event) {
+                    allTrackList = new ArrayList<>();
+                    allTrackList.addAll(session.getRequestedTracks());
+                    allTrackList.addAll(searchController.getTracksInPlaylist(authorization, event.getValue()));
+                }
+            });
+            selectPlaylist.setLabel("Select playlist as base");
+            add(selectPlaylist);
+
             add(new HorizontalLayout(lastButton, playPauseButton, nextButton, new Label("Volume: "), paperRangeSlider));
             add(component);
 
         }
 
     }
+    private List<Track> allTrackList;
 
     private String title = "OurRequest | Play";
 
@@ -111,11 +141,11 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
     public void stateChanged(SpotifyWebState state) {
         if (state.getPosition() == 0 && state.getPaused()) { // Next song requested
             session = partySessionRepository.findBy_id(sessionId);
-            if (session.getRequestedTracks().size() > currentSong+1) {
+            if (allTrackList.size() > currentSong+1) {
                 if (lastTimestamp+500 < System.currentTimeMillis()) {
                     currentSong++;
                     // Execute next song from playing queue
-                    component.playSong(session.getRequestedTracks().get(currentSong));
+                    component.playSong(allTrackList.get(currentSong));
                 }
                 lastTimestamp = System.currentTimeMillis();
             } else {

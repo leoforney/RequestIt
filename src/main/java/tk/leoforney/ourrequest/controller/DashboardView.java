@@ -53,6 +53,8 @@ public class DashboardView extends VerticalLayout {
                         "state=" + user.getId(), "Link Spotify");
                 add(anchor);
             }
+        } else {
+            this.getUI().ifPresent(ui -> ui.navigate("login"));
         }
 
         Button dashboard = new Button("Sessions");
