@@ -1,0 +1,13 @@
+{
+  "name": "frontend",
+  "homepage": "https://github.com/leoforney/SpotifyDJ",
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "sortable-list": "sharedlabs/sortable-list#^1.0.2",
+    "Sortable": "https://github.com/RubaXa/Sortable.git#~1.0",
+    "vaadin-material-styles": "vaadin/vaadin-material-theme#^1.2.3"
+  }
+}

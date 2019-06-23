@@ -51,6 +51,7 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
     private PartySession session;
     private Button playPauseButton;
     private boolean firstPlayPush = false;
+    private SortableList list;
 
     @Override
     public void setParameter(BeforeEvent event, String sessionId) {
@@ -103,16 +104,26 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
                     return item.getName();
                 }
             });
-            selectPlaylist.addValueChangeListener(new HasValue.ValueChangeListener<AbstractField.ComponentValueChangeEvent<ComboBox<PlaylistSimplified>, PlaylistSimplified>>() {
-                @Override
-                public void valueChanged(AbstractField.ComponentValueChangeEvent<ComboBox<PlaylistSimplified>, PlaylistSimplified> event) {
-                    allTrackList = new ArrayList<>();
-                    allTrackList.addAll(session.getRequestedTracks());
-                    allTrackList.addAll(searchController.getTracksInPlaylist(authorization, event.getValue()));
-                }
+            selectPlaylist.addValueChangeListener((HasValue.ValueChangeListener<AbstractField.ComponentValueChangeEvent<ComboBox<PlaylistSimplified>, PlaylistSimplified>>) event13 -> {
+                allTrackList = new ArrayList<>();
+                allTrackList.addAll(session.getRequestedTracks());
+                allTrackList.addAll(searchController.getTracksInPlaylist(authorization, event13.getValue()));
+                list.addTrackList(allTrackList);
             });
             selectPlaylist.setLabel("Select playlist as base");
             add(selectPlaylist);
+
+            VerticalLayout panel = new VerticalLayout();
+            panel.getStyle().set("overflow", "auto");
+            panel.getStyle().set("border", "1px solid");
+            panel.setHeight("400px");
+            add(panel);
+
+            list = new SortableList();
+
+            panel.add(list);
+
+            add(panel);
 
             add(new HorizontalLayout(lastButton, playPauseButton, nextButton, new Label("Volume: "), paperRangeSlider));
             add(component);

@@ -25,13 +25,23 @@ compileJava {
 }
 
 dependencies {
-    implementation 'com.vaadin:vaadin-spring-boot-starter'
+    // API Connectivity
+
+    implementation 'com.squareup.okhttp3:okhttp:4.0.0-alpha02'
+    implementation 'se.michaelthelin.spotify:spotify-web-api-java:2.1.2'
+
+    // Spring starters
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'com.squareup.okhttp3:okhttp:4.0.0-alpha02'
+
+    // Vaadin and GUI elements
+
+    implementation 'com.vaadin:vaadin-spring-boot-starter'
     implementation 'org.vaadin.zhe:paper-range-slider:1.0.0'
-    implementation 'se.michaelthelin.spotify:spotify-web-api-java:2.1.2'
+    implementation 'com.github.appreciated:card:0.9.4'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
 }
