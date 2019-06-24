@@ -20,6 +20,10 @@ repositories {
 
 ext['tomcat.version'] = '8.5.39'
 
+bootWar {
+
+}
+
 compileJava {
     archivesBaseName = "OurRequest"
 }

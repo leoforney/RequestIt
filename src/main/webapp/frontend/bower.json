@@ -8,6 +8,8 @@
   "dependencies": {
     "sortable-list": "sharedlabs/sortable-list#^1.0.2",
     "Sortable": "https://github.com/RubaXa/Sortable.git#~1.0",
-    "vaadin-material-styles": "vaadin/vaadin-material-theme#^1.2.3"
+    "vaadin-material-styles": "vaadin/vaadin-material-theme#^1.2.3",
+    "dom-reorderer": "advanced-rest-client/dom-reorderer#^2.0.1",
+    "polymer-sortablejs": "^0.1.3"
   }
 }

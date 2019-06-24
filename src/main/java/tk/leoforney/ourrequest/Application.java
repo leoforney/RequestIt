@@ -22,6 +22,7 @@ public class Application extends SpringBootServletInitializer implements Applica
     public static ApplicationContext appContext;
 
     public static void main(String[] args) {
+        System.setProperty("server.servlet.context-path", "");
         SpringApplication.run(Application.class, args);
     }
 

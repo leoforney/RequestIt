@@ -9,18 +9,19 @@ public class ListItem extends Div {
     private Track storedTrack;
     Html songName;
 
-    public ListItem(Track track) {
+    public ListItem(Track track, boolean requested) {
         this.storedTrack = track;
         if (track != null) {
-            songName = new Html("<div><p>" + track.getName() + " - " + track.getArtist().getName() + "</p></div>");
-        } else {
-            songName = new Html("<div><p>" + "Baby on Baby" + " - " + "DaBaby" + "</p></div>");
+            songName = new Html("<p class=\"sortable-item\" style=\"width: 100%;\">" + track.getArtist().getName() + " - " + track.getName() + "</p>");
+            if (requested) {
+                songName = new Html("<p class=\"sortable-item requested\" style=\"width: 100%;\">" + track.getArtist().getName() + " - " + track.getName() + "</p>");
+            }
         }
         add(songName);
     }
 
     public ListItem() {
-        new ListItem(null);
+        new ListItem(null, false);
     }
 
 }

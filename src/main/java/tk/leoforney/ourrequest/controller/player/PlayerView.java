@@ -106,9 +106,10 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
             });
             selectPlaylist.addValueChangeListener((HasValue.ValueChangeListener<AbstractField.ComponentValueChangeEvent<ComboBox<PlaylistSimplified>, PlaylistSimplified>>) event13 -> {
                 allTrackList = new ArrayList<>();
+                allTrackList.clear();
                 allTrackList.addAll(session.getRequestedTracks());
                 allTrackList.addAll(searchController.getTracksInPlaylist(authorization, event13.getValue()));
-                list.addTrackList(allTrackList);
+                list.addTrackList(session.getRequestedTracks(), searchController.getTracksInPlaylist(authorization, event13.getValue()));
             });
             selectPlaylist.setLabel("Select playlist as base");
             add(selectPlaylist);
@@ -150,23 +151,26 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
 
     @Override
     public void stateChanged(SpotifyWebState state) {
-        if (state.getPosition() == 0 && state.getPaused()) { // Next song requested
-            session = partySessionRepository.findBy_id(sessionId);
-            if (allTrackList.size() > currentSong+1) {
-                if (lastTimestamp+500 < System.currentTimeMillis()) {
-                    currentSong++;
-                    // Execute next song from playing queue
-                    component.playSong(allTrackList.get(currentSong));
+        if (state != null) {
+            if (state.getPosition() == 0 && state.getPaused()) { // Next song requested
+                session = partySessionRepository.findBy_id(sessionId);
+                if (allTrackList.size() > currentSong+1) {
+                    if (lastTimestamp+500 < System.currentTimeMillis()) {
+                        currentSong++;
+                        list.getCurrentTrackListOrder();
+                        component.playSong(allTrackList.get(currentSong));
+                    }
+                    lastTimestamp = System.currentTimeMillis();
+                } else {
+                    // Queue completed, show reset button
                 }
-                lastTimestamp = System.currentTimeMillis();
+            }
+            if (!state.getPaused()) {
+                playPauseButton.setIcon(VaadinIcon.PAUSE.create());
             } else {
-                // Queue completed, show reset button
+                playPauseButton.setIcon(VaadinIcon.PLAY.create());
             }
         }
-        if (!state.getPaused()) {
-            playPauseButton.setIcon(VaadinIcon.PAUSE.create());
-        } else {
-            playPauseButton.setIcon(VaadinIcon.PLAY.create());
-        }
+
     }
 }
