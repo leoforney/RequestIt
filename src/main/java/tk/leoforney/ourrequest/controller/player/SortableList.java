@@ -79,7 +79,7 @@ public class SortableList extends Component implements HasComponents {
     }
 
     private PlayerComponent component;
-    private int index;
+    private int index = 0;
 
     public void nextSong(PlayerComponent component, int index) {
         this.component = component;

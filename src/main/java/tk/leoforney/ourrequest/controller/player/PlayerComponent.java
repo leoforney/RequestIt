@@ -42,10 +42,7 @@ public class PlayerComponent extends Component {
     public void playSong(String uri) {
         getElement().executeJavaScript("play('" + uri + "\"')");
     }
-
-    public void playSong(List<Track> trackList) {
-
-    }
+    // TODO: (Play silent track, pause immediately), then go to SortableList and play the first song
 
     public void playSong(Track track) {
         playSong(track.getUri());
