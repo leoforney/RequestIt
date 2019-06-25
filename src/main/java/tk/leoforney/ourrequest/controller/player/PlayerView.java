@@ -168,7 +168,7 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
                         for (Track track: list.getCurrentTrackListOrder()) {
                             System.out.println(track.getName());
                         }
-                        component.playSong(allTrackList.get(currentSong));
+                        list.nextSong(component, currentSong);
                     }
                     lastTimestamp = System.currentTimeMillis();
                 } else {

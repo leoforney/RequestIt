@@ -50,22 +50,7 @@ public class SortableList extends Component implements HasComponents {
     }
 
     public List<Track> getCurrentTrackListOrder() {
-        // Because of the lack of function to retrieve the data from the list, as objects
-        // TODO: Deconstruct DOM and resolve into the list
         tempList = new ArrayList<>();
-        /*
-        getUI().ifPresent(ui -> ui.access((Command) () ->
-                getElement().getChildren().forEach(element -> {
-                    String id = element.getChild(0).getAttribute("id");
-                    System.out.println(element.getChild(0).getOuterHTML());
-                    for (Track track : allTracks) {
-                        if (track.getId().equals(id)) {
-                            tempList.add(track);
-                            break;
-                        }
-                    }
-                })));
-*/
         getElement().executeJavaScript("retrieveOrder()");
         return tempList;
     }
@@ -86,9 +71,19 @@ public class SortableList extends Component implements HasComponents {
                     System.out.println(track.getName());
                     tempList.add(track);
                     break;
+                    //TODO: Do case where song doesn't exist in the allTracks list, new songs
                 }
             }
         }
+        component.playSong(tempList.get(index));
+    }
+
+    private PlayerComponent component;
+    private int index;
+
+    public void nextSong(PlayerComponent component, int index) {
+        this.component = component;
+        this.index = index;
     }
 
 
