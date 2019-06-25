@@ -6,6 +6,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
@@ -71,14 +72,21 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
             playPauseButton.addClickListener(new ComponentEventListener<ClickEvent<Button>>() {
                 @Override
                 public void onComponentEvent(ClickEvent<Button> event) {
-                    if (allTrackList.size() != 0) {
-                        if (!firstPlayPush) {
-                            component.playSong(session.getRequestedTracks().get(0));
-                            firstPlayPush = true;
+                    if (allTrackList == null) {
+                        Notification.show("Please select a playlist!");
+                    } else {
+                        if (allTrackList.size() != 0) {
+                            if (!firstPlayPush) {
+                                component.playSong(session.getRequestedTracks().get(0));
+                                firstPlayPush = true;
+                            } else {
+                                component.togglePlayback();
+                            }
                         } else {
-                            component.togglePlayback();
+                            Notification.show("There are no songs in the list!");
                         }
                     }
+
                 }
             });
 
@@ -155,9 +163,11 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
             if (state.getPosition() == 0 && state.getPaused()) { // Next song requested
                 session = partySessionRepository.findBy_id(sessionId);
                 if (allTrackList.size() > currentSong+1) {
-                    if (lastTimestamp+500 < System.currentTimeMillis()) {
+                    if (lastTimestamp + 500 < System.currentTimeMillis()) {
                         currentSong++;
-                        list.getCurrentTrackListOrder();
+                        for (Track track: list.getCurrentTrackListOrder()) {
+                            System.out.println(track.getName());
+                        }
                         component.playSong(allTrackList.get(currentSong));
                     }
                     lastTimestamp = System.currentTimeMillis();

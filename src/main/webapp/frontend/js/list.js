@@ -4,3 +4,11 @@ $(document).ready(function(){
         animation: 150
     });
 });
+
+function retrieveOrder() {
+    const songIds = [];
+    $("#sortableList").children().map(function(){
+        songIds.push(this.firstChild.getAttribute("id"));
+    });
+    document.getElementById("sortableList").$server.updateListOrder(JSON.stringify(songIds));
+}
