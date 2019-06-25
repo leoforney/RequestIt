@@ -108,21 +108,21 @@ public class SearchController {
         SpotifyApi spotifyApi = getSpotifyApi(authorization);
 
         try {
-            Paging<PlaylistTrack> paging = spotifyApi.getPlaylistsTracks(playlist.getId()).build().execute();
             int totalSize = playlist.getTracks().getTotal();
-            int totalIterations = Math.round(totalSize/100);
+            int totalIterations = Math.round(totalSize / 100);
+            System.out.println(totalSize/100);
             List<tk.leoforney.ourrequest.model.spotify.Track> tracksConverted = new ArrayList<>();
-            for (PlaylistTrack pt: paging.getItems()) {
-                tracksConverted.add(new tk.leoforney.ourrequest.model.spotify.Track(pt.getTrack()));
-            }
-            /*
-            for (int i = 0; i < totalIterations; i++) {
-                if (i > 0) {
 
+            for (int i = 0; i <= totalIterations; i++) {
+                Paging<PlaylistTrack> pts = spotifyApi.getPlaylistsTracks(playlist.getId()).offset((i) * 100).build().execute();
+                for (PlaylistTrack track : pts.getItems()) {
+                    if (track != null) {
+                        if (track.getTrack().getIsPlayable() == null || track.getTrack().getIsPlayable()) {
+                            tracksConverted.add(new tk.leoforney.ourrequest.model.spotify.Track(track.getTrack()));
+                        }
+                    }
                 }
-
-            }*/
-            // TODO: Complete pagination through all the tracks on the playlist
+            }
             return tracksConverted;
         } catch (IOException e) {
             e.printStackTrace();

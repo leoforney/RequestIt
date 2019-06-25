@@ -116,8 +116,9 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
                 allTrackList = new ArrayList<>();
                 allTrackList.clear();
                 allTrackList.addAll(session.getRequestedTracks());
-                allTrackList.addAll(searchController.getTracksInPlaylist(authorization, event13.getValue()));
-                list.addTrackList(session.getRequestedTracks(), searchController.getTracksInPlaylist(authorization, event13.getValue()));
+                List<Track> playlistTracks = searchController.getTracksInPlaylist(authorization, event13.getValue());
+                allTrackList.addAll(playlistTracks);
+                list.addTrackList(session.getRequestedTracks(), playlistTracks);
             });
             selectPlaylist.setLabel("Select playlist as base");
             add(selectPlaylist);
