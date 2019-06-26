@@ -10,5 +10,13 @@ function retrieveOrder() {
     $("#sortableList").children().map(function(){
         songIds.push(this.firstChild.getAttribute("id"));
     });
-    document.getElementById("sortableList").$server.updateListOrder(JSON.stringify(songIds));
+    const jsonString = JSON.stringify(songIds);
+    document.getElementById("sortableList").$server.updateListOrder(jsonString);
+    return jsonString;
+}
+
+function nextSong() {
+    retrieveOrder();
+    document.getElementById("sortableList").$server.nextTrackJs();
+
 }

@@ -72,7 +72,7 @@ public class PlayerComponent extends Component {
 
     @ClientCallable
     public void setDeviceId(String device_id) {
-        this.deviceId = deviceId;
+        this.deviceId = device_id;
     }
 
     private String state = "{}";

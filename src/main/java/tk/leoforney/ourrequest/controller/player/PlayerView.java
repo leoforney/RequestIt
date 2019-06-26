@@ -75,16 +75,21 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
                     if (allTrackList == null) {
                         Notification.show("Please select a playlist!");
                     } else {
-                        if (allTrackList.size() != 0) {
-                            if (!firstPlayPush) {
-                                component.playSong(session.getRequestedTracks().get(0));
-                                firstPlayPush = true;
+                        if (component.getDeviceId() != null) {
+                            if (allTrackList.size() != 0) {
+                                if (!firstPlayPush) {
+                                    component.playSong(session.getRequestedTracks().get(0));
+                                    firstPlayPush = true;
+                                } else {
+                                    component.togglePlayback();
+                                }
                             } else {
-                                component.togglePlayback();
+                                Notification.show("There are no songs in the list!");
                             }
                         } else {
-                            Notification.show("There are no songs in the list!");
+                            Notification.show("Connecting to Spotify API");
                         }
+
                     }
 
                 }
@@ -129,7 +134,7 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
             panel.setHeight("400px");
             add(panel);
 
-            list = new SortableList();
+            list = new SortableList(component, SortableList.SortOrder.SHUFFLE);
 
             panel.add(list);
 
@@ -166,10 +171,7 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
                 if (allTrackList.size() > currentSong+1) {
                     if (lastTimestamp + 500 < System.currentTimeMillis()) {
                         currentSong++;
-                        for (Track track: list.getCurrentTrackListOrder()) {
-                            System.out.println(track.getName());
-                        }
-                        list.nextSong(component, currentSong);
+                        list.nextSong(currentSong);
                     }
                     lastTimestamp = System.currentTimeMillis();
                 } else {

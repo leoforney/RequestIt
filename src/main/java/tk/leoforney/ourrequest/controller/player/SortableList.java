@@ -13,6 +13,7 @@ import tk.leoforney.ourrequest.model.spotify.Track;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Tag("sortable-jquery")
@@ -23,10 +24,19 @@ import java.util.List;
 @StyleSheet("frontend://styles/list.css")
 public class SortableList extends Component implements HasComponents {
 
+    public enum SortOrder {
+        REGULAR,
+        SHUFFLE,
+        REVERSE
+    }
+
     private List<Track> requestedTracks, regularTracks, allTracks, tempList;
     private static ObjectMapper mapper;
+    private SortOrder order;
 
-    public SortableList() {
+    public SortableList(PlayerComponent component, SortOrder order) {
+        this.component = component;
+        this.order = order;
         setId("sortableList");
     }
 
@@ -43,16 +53,29 @@ public class SortableList extends Component implements HasComponents {
             allTracks.add(track);
             add(new ListItem(track, true));
         }
+        if (order.equals(SortOrder.REGULAR)) {
+        } else if (order.equals(SortOrder.REVERSE)) {
+            Collections.reverse(regularTracks);
+        } else if (order.equals(SortOrder.SHUFFLE)) {
+            Collections.shuffle(regularTracks);
+        }
         for (Track track : regularTracks) {
             allTracks.add(track);
             add(new ListItem(track, false));
         }
+
     }
 
     public List<Track> getCurrentTrackListOrder() {
-        tempList = new ArrayList<>();
-        getElement().executeJavaScript("retrieveOrder()");
+        if (tempList == null) tempList = new ArrayList<>();
         return tempList;
+    }
+
+    @ClientCallable
+    public void nextTrackJs() {
+        if (component != null) {
+            component.playSong(tempList.get(index));
+        }
     }
 
     @ClientCallable
@@ -68,22 +91,27 @@ public class SortableList extends Component implements HasComponents {
         for (String id : trackIds) {
             for (Track track : allTracks) {
                 if (track.getId().equals(id)) {
-                    System.out.println(track.getName());
                     tempList.add(track);
                     break;
-                    //TODO: Do case where song doesn't exist in the allTracks list, new songs
+                } else {
+                    add(new ListItem(track, true));
                 }
             }
         }
-        component.playSong(tempList.get(index));
+    }
+
+    public void addRequestedTrack(Track track) {
+        requestedTracks.add(track);
+
     }
 
     private PlayerComponent component;
     private int index = 0;
 
-    public void nextSong(PlayerComponent component, int index) {
-        this.component = component;
+    public void nextSong(int index) {
+        tempList = new ArrayList<>();
         this.index = index;
+        getElement().executeJavaScript("nextSong()");
     }
 
 
