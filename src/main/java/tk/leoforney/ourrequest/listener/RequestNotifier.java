@@ -41,7 +41,13 @@ public class RequestNotifier {
 
     public void songRequested(Track track) {
         for (RequestListener listener : listeners) {
-            listener.trackAdded(track);
+            listener.trackRequested(track);
+        }
+    }
+
+    public void songAccepted(Track track) {
+        for (RequestListener listener : listeners) {
+            listener.trackAccepted(track);
         }
     }
 }

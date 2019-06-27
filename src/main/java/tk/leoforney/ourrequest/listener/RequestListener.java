@@ -4,6 +4,7 @@ import tk.leoforney.ourrequest.model.spotify.Track;
 
 public interface RequestListener {
 
-    void trackAdded(Track addedTrack);
+    void trackRequested(Track addedTrack);
+    void trackAccepted(Track track);
 
 }

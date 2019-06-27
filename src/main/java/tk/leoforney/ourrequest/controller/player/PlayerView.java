@@ -13,6 +13,7 @@ import com.vaadin.flow.router.*;
 import com.wrapper.spotify.model_objects.specification.PlaylistSimplified;
 import org.vaadin.zhe.PaperRangeSlider;
 import tk.leoforney.ourrequest.controller.player.model.SpotifyWebState;
+import tk.leoforney.ourrequest.listener.RequestListener;
 import tk.leoforney.ourrequest.model.PartySession;
 import tk.leoforney.ourrequest.model.SpotifyAuthorization;
 import tk.leoforney.ourrequest.model.spotify.Track;
@@ -28,7 +29,7 @@ import java.util.List;
 import static tk.leoforney.ourrequest.Application.appContext;
 
 @Route(value = "play", layout = MainLayout.class)
-public class PlayerView extends VerticalLayout implements PlayerComponent.StateChangeCallback, RouterLayout, HasUrlParameter<String>, HasDynamicTitle, ComponentEventListener<PaperRangeSlider.MaxValueChangeEvent> {
+public class PlayerView extends VerticalLayout implements PlayerComponent.StateChangeCallback, RequestListener, RouterLayout, HasUrlParameter<String>, HasDynamicTitle, ComponentEventListener<PaperRangeSlider.MaxValueChangeEvent> {
 
     CustomUserDetailsService userService;
     SpotifyAuthRepository spotifyAuthRepository;
@@ -61,9 +62,9 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
 
         if (session.isValid()) {
             authorization = spotifyAuthRepository.findByEmail(session.getEmail());
-            if (!authorization.isValid()) {
-                authorization = userService.refreshAccessToken(authorization.getEmail());
-            }
+            authorization = searchController.refreshAuthorizationIfNeeded(authorization);
+
+            session.getNotifier().addListener(this);
 
             component = new PlayerComponent(this, authorization);
             component.addCallback(this);
@@ -78,7 +79,7 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
                         if (component.getDeviceId() != null) {
                             if (allTrackList.size() != 0) {
                                 if (!firstPlayPush) {
-                                    component.playSong(session.getRequestedTracks().get(0));
+                                    component.playSong(session.getAcceptedTracks().get(0));
                                     firstPlayPush = true;
                                 } else {
                                     component.togglePlayback();
@@ -120,10 +121,10 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
             selectPlaylist.addValueChangeListener((HasValue.ValueChangeListener<AbstractField.ComponentValueChangeEvent<ComboBox<PlaylistSimplified>, PlaylistSimplified>>) event13 -> {
                 allTrackList = new ArrayList<>();
                 allTrackList.clear();
-                allTrackList.addAll(session.getRequestedTracks());
+                allTrackList.addAll(session.getAcceptedTracks());
                 List<Track> playlistTracks = searchController.getTracksInPlaylist(authorization, event13.getValue());
                 allTrackList.addAll(playlistTracks);
-                list.addTrackList(session.getRequestedTracks(), playlistTracks);
+                list.addTrackList(session.getAcceptedTracks(), playlistTracks);
             });
             selectPlaylist.setLabel("Select playlist as base");
             add(selectPlaylist);
@@ -143,6 +144,8 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
             add(new HorizontalLayout(lastButton, playPauseButton, nextButton, new Label("Volume: "), paperRangeSlider));
             add(component);
 
+        } else {
+            add(new H2("The party session has ended!"));
         }
 
     }
@@ -185,5 +188,16 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
             }
         }
 
+    }
+
+    @Override
+    public void trackRequested(Track addedTrack) {
+
+    }
+
+    @Override
+    public void trackAccepted(Track track) {
+        allTrackList.add(track);
+        list.addRequestedTrack(track);
     }
 }

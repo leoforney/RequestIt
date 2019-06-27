@@ -7,6 +7,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -49,40 +50,11 @@ public class SessionSpecificView extends VerticalLayout implements RequestListen
 
     }
 
-    @Override
-    public void trackAdded(Track addedTrack) {
-        this.getUI().ifPresent(ui -> ui.access(new Command() {
-            @Override
-            public void execute() {
-                newestAddedSong.setText("Newest added song: " + addedTrack.getName());
-                Notification notification = new Notification("Added song: " + addedTrack.getName());
-                notification.setDuration(5000);
-
-                Label label = new Label("New song added " + addedTrack.getName() + " - " + addedTrack.getArtist().getName());
-
-                Button acceptButton = new Button("Accept");
-                acceptButton.setId("acceptButtonNotification");
-                acceptButton.addClickListener((ComponentEventListener<ClickEvent<Button>>) event -> acceptTrack(addedTrack));
-
-                Button declineButton = new Button("Decline");
-                acceptButton.setId("declineButtonNotification");
-                declineButton.addClickListener((ComponentEventListener<ClickEvent<Button>>) event -> declineTrack(addedTrack));
-
-                notification.add(new VerticalLayout(label, new HorizontalLayout(acceptButton, declineButton)));
-
-                notification.open();
-
-                trackListBox.setItems(refreshedRequestedTracks());
-                if (!ui.getPushConfiguration().getPushMode().equals(PushMode.DISABLED)) {
-                    ui.push();
-                }
-            }
-        }));
-    }
 
     List<Track> refreshedRequestedTracks() {
         return partySessionRepository.findBy_id(sessionId).getRequestedTracks();
     }
+
     List<Track> refreshedAcceptedTracks() {
         return partySessionRepository.findBy_id(sessionId).getAcceptedTracks();
     }
@@ -103,19 +75,28 @@ public class SessionSpecificView extends VerticalLayout implements RequestListen
 
         trackListBox = new ListBox<>();
 
-        trackListBox.setItems(session.getRequestedTracks());
+        trackListBox.setItems(refreshedRequestedTracks());
 
         trackListBox.setRenderer(new ComponentRenderer<>(item -> {
             Label name = new Label(item.getName());
             Label stock = new Label(item.getArtist().getName());
 
-            Button button = new Button("Play", event -> {
+            Button playButton = new Button(VaadinIcon.PLAY.create(), event -> {
                 //item.setStock(item.getStock() - 1);
                 //listBox.getDataProvider().refreshItem(item);
+                // TODO: Implement song sample, accept and decline buttons
+            });
+
+            Button acceptButton = new Button("Accept", event -> {
+                acceptTrack(item);
+            });
+
+            Button declineButton = new Button("Decline", event -> {
+                declineTrack(item);
             });
 
             Div labels = new Div(name, stock);
-            Div layout = new Div(labels, button);
+            Div layout = new Div(labels, playButton, acceptButton, declineButton);
 
             labels.getStyle().set("display", "flex")
                     .set("flexDirection", "column").set("marginRight", "0px");
@@ -134,13 +115,66 @@ public class SessionSpecificView extends VerticalLayout implements RequestListen
     }
 
     public void acceptTrack(Track track) {
-        List<Track> acceptedTracks = refreshedAcceptedTracks();
-        acceptedTracks.add(track);
-        session.setAcceptedTracks(acceptedTracks);
+        session.acceptTrack(track);
         partySessionRepository.save(session);
+
+        trackListBox.setItems(refreshedRequestedTracks());
+        this.getUI().ifPresent(ui -> ui.access((Command) () -> {
+            if (!ui.getPushConfiguration().getPushMode().equals(PushMode.DISABLED)) {
+                ui.push();
+            }
+        }));
     }
 
     public void declineTrack(Track track) {
+        session.deleteRequestedTrack(track);
+        partySessionRepository.save(session);
 
+        trackListBox.setItems(refreshedRequestedTracks());
+        this.getUI().ifPresent(ui -> ui.access((Command) () -> {
+            if (!ui.getPushConfiguration().getPushMode().equals(PushMode.DISABLED)) {
+                ui.push();
+            }
+        }));
+
+    }
+
+    @Override
+    public void trackRequested(Track addedTrack) {
+        this.getUI().ifPresent(ui -> ui.access((Command) () -> {
+            newestAddedSong.setText("Newest added song: " + addedTrack.getName());
+            Notification notification = new Notification("Added song: " + addedTrack.getName());
+            notification.setDuration(5000);
+
+            Label label = new Label("New song added " + addedTrack.getName() + " - " + addedTrack.getArtist().getName());
+
+            Button acceptButton = new Button("Accept");
+            acceptButton.setId("acceptButtonNotification");
+            acceptButton.addClickListener((ComponentEventListener<ClickEvent<Button>>) event -> {
+                acceptTrack(addedTrack);
+                notification.close();
+            });
+
+            Button declineButton = new Button("Decline");
+            acceptButton.setId("declineButtonNotification");
+            declineButton.addClickListener((ComponentEventListener<ClickEvent<Button>>) event -> {
+                declineTrack(addedTrack);
+                notification.close();
+            });
+
+            notification.add(new VerticalLayout(label, new HorizontalLayout(acceptButton, declineButton)));
+
+            notification.open();
+
+            trackListBox.setItems(refreshedRequestedTracks());
+            if (!ui.getPushConfiguration().getPushMode().equals(PushMode.DISABLED)) {
+                ui.push();
+            }
+        }));
+    }
+
+    @Override
+    public void trackAccepted(Track track) {
+        Notification.show("Track accepted");
     }
 }

@@ -68,6 +68,7 @@ public class PartySession {
     }
 
     public List<Track> getAcceptedTracks() {
+        if (acceptedTracks == null) acceptedTracks = new ArrayList<>();
         return acceptedTracks;
     }
 
@@ -113,6 +114,24 @@ public class PartySession {
         List<Track> requestedTracksModified = getRequestedTracks();
         requestedTracksModified.add(track);
         setRequestedTracks(requestedTracksModified);
+    }
+
+    public void acceptTrack(Track track) {
+        getNotifier().songAccepted(track);
+        List<Track> acceptedTracksModified = getAcceptedTracks();
+        deleteRequestedTrack(track);
+        acceptedTracksModified.add(track);
+        setAcceptedTracks(acceptedTracksModified);
+    }
+
+    public void deleteRequestedTrack(Track track) {
+        requestedTracks = getRequestedTracks();
+        for (int i = 0; i < requestedTracks.size(); i++) {
+            if (requestedTracks.get(i).getId().equals(track.getId())) {
+                requestedTracks.remove(i);
+            }
+        }
+        setRequestedTracks(requestedTracks);
     }
 
     public PartySession clone() {

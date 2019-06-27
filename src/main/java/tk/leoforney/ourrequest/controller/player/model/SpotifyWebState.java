@@ -14,7 +14,7 @@ public class SpotifyWebState {
     private Integer bitrate;
     @SerializedName("position")
     @Expose
-    private Integer position;
+    private Double position;
     @SerializedName("duration")
     @Expose
     private Integer duration;
@@ -74,11 +74,11 @@ public class SpotifyWebState {
         this.bitrate = bitrate;
     }
 
-    public Integer getPosition() {
+    public Double getPosition() {
         return position;
     }
 
-    public void setPosition(Integer position) {
+    public void setPosition(Double position) {
         this.position = position;
     }
 

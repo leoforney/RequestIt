@@ -153,16 +153,17 @@ public class SearchController {
     }
 
     public SpotifyApi getSpotifyApi(SpotifyAuthorization authorization) {
-        refreshAuthorizationIfNeeded(authorization);
 
         return new SpotifyApi.Builder()
-                .setAccessToken(authorization.getToken().getAccess_token()).build();
+                .setAccessToken(refreshAuthorizationIfNeeded(authorization).getToken().getAccess_token()).build();
     }
 
     public SpotifyAuthorization refreshAuthorizationIfNeeded(SpotifyAuthorization authorization) {
-        if (!authorization.isValid()) {
-            userService.refreshAccessToken(authorization.getEmail());
-            authorization = spotifyAuthRepository.findByEmail(authorization.getEmail());
+        if (authorization != null) {
+            if (!authorization.isValid()) {
+                userService.refreshAccessToken(authorization.getEmail());
+                authorization = spotifyAuthRepository.findByEmail(authorization.getEmail());
+            }
         }
         return authorization;
     }

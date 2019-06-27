@@ -102,7 +102,7 @@ public class SortableList extends Component implements HasComponents {
 
     public void addRequestedTrack(Track track) {
         requestedTracks.add(track);
-
+        add(new ListItem(track, true));
     }
 
     private PlayerComponent component;
