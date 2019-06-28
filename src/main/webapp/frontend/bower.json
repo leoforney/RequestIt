@@ -11,6 +11,7 @@
     "vaadin-material-styles": "vaadin/vaadin-material-theme#^1.2.3",
     "dom-reorderer": "advanced-rest-client/dom-reorderer#^2.0.1",
     "polymer-sortablejs": "^0.1.3",
-    "star-rating": "greenyouse/star-rating#^2.0.2"
+    "star-rating": "greenyouse/star-rating#^2.0.2",
+    "howler.js": "howler#^2.1.2"
   }
 }

@@ -2,7 +2,9 @@ package tk.leoforney.ourrequest.controller;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
@@ -28,10 +30,13 @@ import tk.leoforney.ourrequest.service.CustomUserDetailsService;
 import tk.leoforney.ourrequest.vaadin.MainLayout;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static tk.leoforney.ourrequest.Application.appContext;
 
 @Route(value = "session", layout = MainLayout.class)
+@JavaScript("frontend://bower_components/howler.js/dist/howler.min.js")
+@JavaScript("frontend://js/sessions_specific.js")
 public class SessionSpecificView extends VerticalLayout implements RequestListener, HasUrlParameter<String>, HasDynamicTitle {
 
     private H3 newestAddedSong;
@@ -82,9 +87,12 @@ public class SessionSpecificView extends VerticalLayout implements RequestListen
             Label stock = new Label(item.getArtist().getName());
 
             Button playButton = new Button(VaadinIcon.PLAY.create(), event -> {
-                //item.setStock(item.getStock() - 1);
-                //listBox.getDataProvider().refreshItem(item);
-                // TODO: Implement song sample, accept and decline buttons
+                event.getSource().getUI().ifPresent(new Consumer<UI>() {
+                    @Override
+                    public void accept(UI ui) {
+                        ui.getPage().executeJavaScript("playPreview('" + item.getPreviewUrl() + "')");
+                    }
+                });
             });
 
             Button acceptButton = new Button("Accept", event -> {
