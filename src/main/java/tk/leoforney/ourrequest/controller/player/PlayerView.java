@@ -25,6 +25,7 @@ import tk.leoforney.ourrequest.vaadin.MainLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static tk.leoforney.ourrequest.Application.appContext;
 
@@ -79,7 +80,8 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
                         if (component.getDeviceId() != null) {
                             if (allTrackList.size() != 0) {
                                 if (!firstPlayPush) {
-                                    component.playSong(session.getAcceptedTracks().get(0));
+                                    //component.playSong(session.getAcceptedTracks().get(0));
+                                    component.playFirstSong();
                                     firstPlayPush = true;
                                 } else {
                                     component.togglePlayback();
@@ -171,15 +173,21 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
         if (state != null) {
             if (state.getPosition() == 0 && state.getPaused()) { // Next song requested
                 session = partySessionRepository.findBy_id(sessionId);
-                if (allTrackList.size() > currentSong+1) {
+                //if (allTrackList.size() > currentSong+1) {
                     if (lastTimestamp + 500 < System.currentTimeMillis()) {
-                        currentSong++;
-                        list.nextSong(currentSong);
+                        getUI().ifPresent(new Consumer<UI>() {
+                            @Override
+                            public void accept(UI ui) {
+                                ui.getPage().executeJavaScript("nextSong()");
+                            }
+                        });
+                        //currentSong++;
+                        //list.nextSong(currentSong);
                     }
                     lastTimestamp = System.currentTimeMillis();
-                } else {
+                //} else {
                     // Queue completed, show reset button
-                }
+                //}
             }
             if (!state.getPaused()) {
                 playPauseButton.setIcon(VaadinIcon.PAUSE.create());
@@ -197,7 +205,7 @@ public class PlayerView extends VerticalLayout implements PlayerComponent.StateC
 
     @Override
     public void trackAccepted(Track track) {
-        allTrackList.add(track);
+        //allTrackList.add(track);
         list.addRequestedTrack(track);
     }
 }
