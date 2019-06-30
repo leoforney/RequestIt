@@ -1,10 +1,16 @@
-
+var sound;
 function playPreview(uri) {
-    var sound = new Howl({
-        src: [uri]
-    });
+    if (sound !== undefined) {
+        sound.pause();
+    }
+    if (uri !== undefined) {
+        sound = new Howl({
+            src: [uri],
+            html5: true,
+            format: ['mp3'],
+            volume: 0.4
+        });
 
-    sound.play();
+        sound.play();
+    }
 }
-
-// TODO: Finish this

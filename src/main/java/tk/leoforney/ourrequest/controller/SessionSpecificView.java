@@ -87,12 +87,7 @@ public class SessionSpecificView extends VerticalLayout implements RequestListen
             Label stock = new Label(item.getArtist().getName());
 
             Button playButton = new Button(VaadinIcon.PLAY.create(), event -> {
-                event.getSource().getUI().ifPresent(new Consumer<UI>() {
-                    @Override
-                    public void accept(UI ui) {
-                        ui.getPage().executeJavaScript("playPreview('" + item.getPreviewUrl() + "')");
-                    }
-                });
+                event.getSource().getUI().ifPresent(ui -> ui.getPage().executeJavaScript("playPreview('" + item.getPreviewUrl() + "')"));
             });
 
             Button acceptButton = new Button("Accept", event -> {
