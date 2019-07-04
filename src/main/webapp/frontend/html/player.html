@@ -9,7 +9,7 @@
             _token = tokenData;
             window.onSpotifyPlayerAPIReady = () => {
                 player = new Spotify.Player({
-                    name: 'OurRequest Browser Player',
+                    name: 'RequestIt Browser Player',
                     getOAuthToken: cb => {
                         cb(tokenData);
                     }
