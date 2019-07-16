@@ -1,5 +1,8 @@
 package tk.leoforney.requestit.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,17 +21,21 @@ public class PartySession {
     @Id
     private String _id;
     private String email;
+
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate expiration;
+
     private String sessionName;
     private transient List<Track> requestedTracks;
     private transient List<Track> acceptedTracks;
 
+    @JsonIgnore
     public RequestNotifier getNotifier() {
         if (notifierMap == null) {
             notifierMap = new HashMap<>();
         }
         if (!notifierMap.containsKey(_id)) {
-            RequestNotifier notifier = new RequestNotifier();
+            RequestNotifier notifier = new RequestNotifier(this);
             notifierMap.put(_id, notifier);
             return notifier;
         } else {
@@ -37,7 +44,8 @@ public class PartySession {
     }
 
     @Transient
-    private static Map<String, RequestNotifier> notifierMap;
+    @JsonIgnore
+    private transient static Map<String, RequestNotifier> notifierMap;
 
     public PartySession() {
     }

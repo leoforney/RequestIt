@@ -2,6 +2,7 @@
   <configuration default="false" name="Application" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <module name="requestit.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="tk.leoforney.requestit.Application" />
+    <option name="DEBUG_MODE" value="true" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <option name="SHORTEN_COMMAND_LINE" value="ARGS_FILE" />
     <method v="2">
