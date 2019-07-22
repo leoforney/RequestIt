@@ -20,7 +20,11 @@ import tk.leoforney.requestit.client.service.WebsocketService;
 @SpringBootApplication
 public class Application extends javafx.application.Application {
 
-    private ConfigurableApplicationContext springContext;
+    public static ConfigurableApplicationContext getSpringContext() {
+        return springContext;
+    }
+
+    private static ConfigurableApplicationContext springContext;
 
     WebsocketService websocketService;
 
@@ -43,6 +47,7 @@ public class Application extends javafx.application.Application {
 
         ScreenController controller = ScreenController.getInstance(stage);
         controller.addScreen("login");
+        controller.addScreen("main");
 
         controller.activate("login");
     }

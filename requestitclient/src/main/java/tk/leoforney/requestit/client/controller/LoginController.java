@@ -9,6 +9,9 @@ import javafx.fxml.FXML;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
+import org.springframework.beans.factory.annotation.Autowired;
+import tk.leoforney.requestit.client.Application;
+import tk.leoforney.requestit.client.service.WebsocketService;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -26,10 +29,12 @@ public class LoginController {
     @FXML
     JFXButton submitButton;
 
+    private WebsocketService websocketService;
+
     private Gson gson;
 
     public LoginController() {
-
+        websocketService = (WebsocketService) Application.getSpringContext().getAutowireCapableBeanFactory().getBean("websocketService");
         gson = new Gson();
     }
 
@@ -46,7 +51,13 @@ public class LoginController {
             HttpResponse<JsonNode> userResponse = Unirest.get("http://localhost:8080/user")
                     .asJson();
 
-            logger.info("Response code: " + userResponse.getBody().toString());
+            boolean authenticated = userResponse.getBody().getObject().getBoolean("authenticated");
+
+            logger.info("Response code: " + authenticated);
+
+            if (authenticated) {
+                websocketService.start();
+            }
 
         }
     }

@@ -15,17 +15,20 @@ public class WebsocketService {
 
     private static final Logger logger = Logger.getLogger(WebsocketService.class.getName());
     public SessionHandler sessionHandler;
+    private WebSocketClient client;
 
     public WebsocketService() {
         logger.log(Level.INFO, "Websocket Service started");
-        WebSocketClient client = new StandardWebSocketClient();
+        client = new StandardWebSocketClient();
 
+    }
+
+    public void start() {
         WebSocketStompClient stompClient = new WebSocketStompClient(client);
         stompClient.setMessageConverter(new StringMessageConverter());
 
         sessionHandler = new SessionHandler();
         stompClient.connect("ws://localhost:8080/sessionSocketJs", sessionHandler);
-
     }
 
 }
