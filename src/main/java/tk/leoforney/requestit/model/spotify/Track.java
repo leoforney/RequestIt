@@ -2,7 +2,21 @@ package tk.leoforney.requestit.model.spotify;
 
 public class Track {
 
-    private String id, name, previewUrl, type, uri;
+    private String id;
+    private String name;
+    private String previewUrl;
+    private String type;
+    private String uri;
+
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
+    private String thumbnailUrl;
     private int durationMs, popularity;
     private boolean explicit;
 
@@ -104,6 +118,7 @@ public class Track {
         uri = track.getUri();
         artist = new Artist(track.getArtists()[0]);
         album = new Album(track.getAlbum());
+        thumbnailUrl = track.getAlbum().getImages()[0].getUrl();
     }
 
 }

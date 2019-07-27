@@ -51,13 +51,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/user").permitAll()
                 .anyRequest().authenticated()
 
-                .and()
+                    .and()
                 .formLogin().successHandler(customizeAuthenticationSuccessHandler)
                 .loginPage("/login").failureUrl("/login?error=true")
                 .usernameParameter("email")
                 .passwordParameter("password")
 
-                .and()
+                    .and()
+                .httpBasic()
+
+                    .and()
                 .csrf().disable()
 
                 .logout()

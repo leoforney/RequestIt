@@ -11,6 +11,7 @@ import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
 import org.springframework.beans.factory.annotation.Autowired;
 import tk.leoforney.requestit.client.Application;
+import tk.leoforney.requestit.client.service.AuthenticationService;
 import tk.leoforney.requestit.client.service.WebsocketService;
 
 import java.io.IOException;
@@ -30,11 +31,13 @@ public class LoginController {
     JFXButton submitButton;
 
     private WebsocketService websocketService;
+    private AuthenticationService authenticationService;
 
     private Gson gson;
 
     public LoginController() {
         websocketService = (WebsocketService) Application.getSpringContext().getAutowireCapableBeanFactory().getBean("websocketService");
+        authenticationService = (AuthenticationService) Application.getSpringContext().getAutowireCapableBeanFactory().getBean("authenticationService");
         gson = new Gson();
     }
 
@@ -48,15 +51,14 @@ public class LoginController {
                     .field("password", passwordField.getText())
                     .asString();
 
-            HttpResponse<JsonNode> userResponse = Unirest.get("http://localhost:8080/user")
-                    .asJson();
+            logger.info("Response code: " + authenticationService.authenticated());
 
-            boolean authenticated = userResponse.getBody().getObject().getBoolean("authenticated");
-
-            logger.info("Response code: " + authenticated);
-
-            if (authenticated) {
+            if (authenticationService.authenticated()) {
+                authenticationService.setEmail(emailField.getText());
+                authenticationService.setPassword(passwordField.getText());
                 websocketService.start();
+                ScreenController.getInstance().addScreen("main");
+                ScreenController.getInstance().activate("main");
             }
 
         }

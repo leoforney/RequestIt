@@ -20,10 +20,15 @@ public class ScreenController {
 
     private static ScreenController instance;
 
-    public static ScreenController getInstance(Scene main) {
-        if (instance == null && main != null) {
-            instance = new ScreenController(main);
+    public static ScreenController getInstance() {
+        if (instance != null) {
+            return instance;
         }
+        return new ScreenController(new Scene(new VBox(), 600, 600));
+    }
+
+    public static ScreenController getInstance(Scene main) {
+        instance = new ScreenController(main);
         return instance;
     }
 

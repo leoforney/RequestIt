@@ -2,9 +2,25 @@ package tk.leoforney.requestit.spotify;
 
 public class Track {
 
-    private String id, name, previewUrl, type, uri;
+    private String id;
+    private String name;
+    private String previewUrl;
+    private String type;
+    private String uri;
+
+
+    private String thumbnailUrl;
     private int durationMs, popularity;
     private boolean explicit;
+
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
 
     public String getUri() {
         return uri;
